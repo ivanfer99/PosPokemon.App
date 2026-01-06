@@ -1,36 +1,52 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 using PosPokemon.App.ViewModels;
 
-namespace PosPokemon.App;
-
-public partial class LoginWindow : Window
+namespace PosPokemon.App
 {
-    public LoginWindow()
+    public partial class LoginWindow : Window
     {
-        InitializeComponent();
+        public LoginWindow()
+        {
+            InitializeComponent();
 
-        // Enfocar el campo de usuario al abrir
-        Loaded += (s, e) => TxtUsername.Focus();
+            // Enfocar el campo de usuario al abrir
+            Loaded += (s, e) => TxtUsername.Focus();
 
-        // Permitir presionar Enter para login
-        TxtUsername.KeyDown += (s, e) => { if (e.Key == System.Windows.Input.Key.Enter) Pwd.Focus(); };
-        Pwd.KeyDown += (s, e) => { if (e.Key == System.Windows.Input.Key.Enter) OnLoginClick(s, e); };
-    }
+            // Permitir presionar Enter para login
+            TxtUsername.KeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Enter)
+                    Pwd.Focus();
+            };
 
-    private void OnLoginClick(object sender, RoutedEventArgs e)
-    {
-        if (DataContext is not LoginViewModel vm)
-            return;
+            Pwd.KeyDown += async (s, e) =>
+            {
+                if (e.Key == Key.Enter)
+                    await DoLoginAsync();
+            };
+        }
 
-        // Pasar password real desde PasswordBox al VM
-        vm.Password = Pwd.Password;
+        private async void OnLoginClick(object sender, RoutedEventArgs e)
+        {
+            await DoLoginAsync();
+        }
 
-        // Ejecutar comando de login
-        vm.LoginCommand.Execute(null);
-    }
+        private async System.Threading.Tasks.Task DoLoginAsync()
+        {
+            if (DataContext is not LoginViewModel vm)
+                return;
 
-    private void OnCloseClick(object sender, RoutedEventArgs e)
-    {
-        Application.Current.Shutdown();
+            // Pasar password real desde PasswordBox al VM
+            vm.Password = Pwd.Password;
+
+            // ✅ EJECUTAR COMANDO ASYNC CORRECTAMENTE
+            await vm.LoginCommand.ExecuteAsync(null);
+        }
+
+        private void OnCloseClick(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
     }
 }
