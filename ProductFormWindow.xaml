@@ -1,0 +1,232 @@
+﻿<Window x:Class="PosPokemon.App.ProductFormWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Producto" 
+        Height="650" 
+        Width="550"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="{StaticResource AppBackgroundColor}">
+
+    <Border Margin="20" 
+            Background="White" 
+            CornerRadius="12" 
+            Padding="30">
+        <Border.Effect>
+            <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Título -->
+            <TextBlock Grid.Row="0" 
+                     Text="{Binding Title}"
+                     FontSize="24" 
+                     FontWeight="Bold"
+                     Foreground="{StaticResource PrimaryTextColor}"
+                     Margin="0,0,0,25"/>
+
+            <!-- Formulario -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- SKU -->
+                    <TextBlock Text="SKU *" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Text="{Binding Sku, UpdateSourceTrigger=PropertyChanged}"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Nombre -->
+                    <TextBlock Text="Nombre del Producto *" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Categoría y TCG -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Categoría *" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <ComboBox Height="40"
+                                    Padding="12,0"
+                                    FontSize="14"
+                                    SelectedValue="{Binding Category}"
+                                    SelectedValuePath="Content">
+                                <ComboBoxItem Content="Single"/>
+                                <ComboBoxItem Content="Sealed"/>
+                                <ComboBoxItem Content="Accesorio"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="TCG *" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <ComboBox Height="40"
+                                    Padding="12,0"
+                                    FontSize="14"
+                                    SelectedValue="{Binding Tcg}"
+                                    SelectedValuePath="Content">
+                                <ComboBoxItem Content="Pokemon"/>
+                                <ComboBoxItem Content="Yu-Gi-Oh"/>
+                                <ComboBoxItem Content="Magic"/>
+                                <ComboBoxItem Content="Otro"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Set -->
+                    <TextBlock Text="Set / Expansión" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Text="{Binding SetName, UpdateSourceTrigger=PropertyChanged}"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Rareza e Idioma -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Rareza" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <TextBox Height="40"
+                                   Padding="12,0"
+                                   FontSize="14"
+                                   Text="{Binding Rarity, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Idioma" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <ComboBox Height="40"
+                                    Padding="12,0"
+                                    FontSize="14"
+                                    SelectedValue="{Binding Language}"
+                                    SelectedValuePath="Content">
+                                <ComboBoxItem Content="ES"/>
+                                <ComboBoxItem Content="EN"/>
+                                <ComboBoxItem Content="JP"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Costo y Precio -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Costo (S/) *" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <TextBox Height="40"
+                                   Padding="12,0"
+                                   FontSize="14"
+                                   Text="{Binding Cost, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Precio Venta (S/) *" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <TextBox Height="40"
+                                   Padding="12,0"
+                                   FontSize="14"
+                                   Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Stock -->
+                    <TextBlock Text="Stock Inicial *" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Text="{Binding Stock, UpdateSourceTrigger=PropertyChanged}"
+                           Margin="0,0,0,15"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Botones -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Cancelar"
+                      Width="120"
+                      Height="45"
+                      Margin="0,0,10,0"
+                      Background="#95A5A6"
+                      Foreground="White"
+                      BorderThickness="0"
+                      Click="OnCancelClick">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                              CornerRadius="6">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#7F8C8D"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="💾 Guardar"
+                      Width="150"
+                      Height="45"
+                      Style="{StaticResource PrimaryButton}"
+                      Click="OnSaveClick"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

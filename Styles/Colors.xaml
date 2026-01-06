@@ -1,0 +1,54 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ========================================
+         PALETA DE COLORES PRINCIPAL
+         ======================================== -->
+
+    <!-- Colores de Cards -->
+    <SolidColorBrush x:Key="CardSalesColor" Color="#E74C3C"/>
+    <SolidColorBrush x:Key="CardSalesHoverColor" Color="#C0392B"/>
+
+    <SolidColorBrush x:Key="CardInventoryColor" Color="#3498DB"/>
+    <SolidColorBrush x:Key="CardInventoryHoverColor" Color="#2980B9"/>
+
+    <SolidColorBrush x:Key="CardHistoryColor" Color="#9B59B6"/>
+    <SolidColorBrush x:Key="CardHistoryHoverColor" Color="#8E44AD"/>
+
+    <SolidColorBrush x:Key="CardReportsColor" Color="#1ABC9C"/>
+    <SolidColorBrush x:Key="CardReportsHoverColor" Color="#16A085"/>
+
+    <SolidColorBrush x:Key="CardUsersColor" Color="#F39C12"/>
+    <SolidColorBrush x:Key="CardUsersHoverColor" Color="#E67E22"/>
+
+    <SolidColorBrush x:Key="CardSettingsColor" Color="#34495E"/>
+    <SolidColorBrush x:Key="CardSettingsHoverColor" Color="#2C3E50"/>
+
+    <!-- Colores de Header -->
+    <SolidColorBrush x:Key="HeaderBackgroundColor" Color="#2C3E50"/>
+    <SolidColorBrush x:Key="HeaderTextColor" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="HeaderSubtextColor" Color="#BDC3C7"/>
+    <SolidColorBrush x:Key="HeaderAccentColor" Color="#F1C40F"/>
+    <SolidColorBrush x:Key="UserBadgeBackgroundColor" Color="#34495E"/>
+
+    <!-- Colores de Fondo -->
+    <SolidColorBrush x:Key="AppBackgroundColor" Color="#F5F5F5"/>
+    <SolidColorBrush x:Key="CardWhiteBackground" Color="#FFFFFF"/>
+
+    <!-- Colores de Texto -->
+    <SolidColorBrush x:Key="PrimaryTextColor" Color="#2C3E50"/>
+    <SolidColorBrush x:Key="SecondaryTextColor" Color="#7F8C8D"/>
+    <SolidColorBrush x:Key="WhiteTextColor" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SuccessTextColor" Color="#27AE60"/>
+    <SolidColorBrush x:Key="DangerTextColor" Color="#E74C3C"/>
+
+    <!-- Colores de Botones -->
+    <SolidColorBrush x:Key="LogoutButtonColor" Color="#E74C3C"/>
+    <SolidColorBrush x:Key="LogoutButtonHoverColor" Color="#C0392B"/>
+    <SolidColorBrush x:Key="PrimaryButtonColor" Color="#3498DB"/>
+    <SolidColorBrush x:Key="PrimaryButtonHoverColor" Color="#2980B9"/>
+
+    <!-- Color de Sombras -->
+    <Color x:Key="ShadowColor">#000000</Color>
+
+</ResourceDictionary>

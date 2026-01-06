@@ -3,6 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:utils="clr-namespace:PosPokemon.App.Utils">
     <Application.Resources>
-        <utils:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Estilos centralizados -->
+                <ResourceDictionary Source="Styles/Colors.xaml"/>
+                <ResourceDictionary Source="Styles/Typography.xaml"/>
+                <ResourceDictionary Source="Styles/Controls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters -->
+            <utils:BoolToVisibilityConverter x:Key="BoolToVis"/>
+            <utils:NullToVisibilityConverter x:Key="NullToVis"/>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

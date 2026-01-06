@@ -28,17 +28,55 @@ SELECT last_insert_rowid();";
         return await conn.ExecuteScalarAsync<long>(sql, p);
     }
 
+    public async Task UpdateAsync(Product p)
+    {
+        p.UpdatedUtc = DateTime.UtcNow.ToString("O");
+
+        const string sql = @"
+UPDATE products
+SET sku = @Sku,
+    name = @Name,
+    category = @Category,
+    tcg = @Tcg,
+    set_name = @SetName,
+    rarity = @Rarity,
+    language = @Language,
+    cost = @Cost,
+    price = @Price,
+    stock = @Stock,
+    updated_utc = @UpdatedUtc
+WHERE id = @Id;";
+
+        using var conn = _db.OpenConnection();
+        await conn.ExecuteAsync(sql, p);
+    }
+
+    public async Task DeleteAsync(long productId)
+    {
+        const string sql = "DELETE FROM products WHERE id = @productId;";
+
+        using var conn = _db.OpenConnection();
+        await conn.ExecuteAsync(sql, new { productId });
+    }
+
     public async Task<List<Product>> SearchAsync(string query)
     {
         const string sql = @"
 SELECT * FROM products
-WHERE name LIKE @q OR sku LIKE @q
+WHERE name LIKE @q OR sku LIKE @q OR category LIKE @q OR tcg LIKE @q
 ORDER BY updated_utc DESC
 LIMIT 100;";
 
         using var conn = _db.OpenConnection();
         var res = await conn.QueryAsync<Product>(sql, new { q = $"%{query}%" });
         return res.AsList();
+    }
+
+    public async Task<Product?> GetByIdAsync(long id)
+    {
+        const string sql = "SELECT * FROM products WHERE id=@id LIMIT 1;";
+        using var conn = _db.OpenConnection();
+        return await conn.QueryFirstOrDefaultAsync<Product>(sql, new { id });
     }
 
     public async Task<Product?> GetBySkuAsync(string sku)
@@ -57,5 +95,19 @@ WHERE id=@productId;";
 
         using var conn = _db.OpenConnection();
         await conn.ExecuteAsync(sql, new { productId, newStock, now = DateTime.UtcNow.ToString("O") });
+    }
+
+    public async Task<int> GetTotalCountAsync()
+    {
+        const string sql = "SELECT COUNT(*) FROM products;";
+        using var conn = _db.OpenConnection();
+        return await conn.ExecuteScalarAsync<int>(sql);
+    }
+
+    public async Task<int> GetLowStockCountAsync(int threshold = 5)
+    {
+        const string sql = "SELECT COUNT(*) FROM products WHERE stock <= @threshold;";
+        using var conn = _db.OpenConnection();
+        return await conn.ExecuteScalarAsync<int>(sql, new { threshold });
     }
 }

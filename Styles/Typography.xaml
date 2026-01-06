@@ -1,0 +1,31 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ========================================
+         TIPOGRAFÍAS Y TAMAÑOS DE FUENTE
+         ======================================== -->
+
+    <!-- Tamaños de Fuente -->
+    <sys:Double x:Key="FontSizeXLarge">32</sys:Double>
+    <sys:Double x:Key="FontSizeLarge">24</sys:Double>
+    <sys:Double x:Key="FontSizeMedium">18</sys:Double>
+    <sys:Double x:Key="FontSizeNormal">14</sys:Double>
+    <sys:Double x:Key="FontSizeSmall">12</sys:Double>
+    <sys:Double x:Key="FontSizeXSmall">11</sys:Double>
+
+    <!-- Tamaños específicos para Cards -->
+    <sys:Double x:Key="CardTitleSize">22</sys:Double>
+    <sys:Double x:Key="CardSubtitleSize">13</sys:Double>
+    <sys:Double x:Key="CardIconSize">80</sys:Double>
+
+    <!-- Tamaños para Stats -->
+    <sys:Double x:Key="StatValueSize">22</sys:Double>
+    <sys:Double x:Key="StatLabelSize">12</sys:Double>
+    <sys:Double x:Key="StatEmojiSize">28</sys:Double>
+
+    <!-- Opacidad de Sombras -->
+    <sys:Double x:Key="ShadowOpacity">0.15</sys:Double>
+    <sys:Double x:Key="ShadowOpacityHover">0.25</sys:Double>
+
+</ResourceDictionary>
