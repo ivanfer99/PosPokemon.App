@@ -53,7 +53,16 @@ public partial class ShellViewModel : ObservableObject
         {
             TotalProducts = await _productRepo.GetTotalCountAsync();
             LowStockItems = await _productRepo.GetLowStockCountAsync(5);
-            // TODO: Implementar ventas del día y del mes
+
+            // Ventas de hoy
+            var todayStart = System.DateTime.Today.ToUniversalTime().ToString("O");
+            var todayEnd = System.DateTime.Today.AddDays(1).ToUniversalTime().ToString("O");
+            SalesToday = await _saleRepo.GetTotalSalesByDateRangeAsync(todayStart, todayEnd);
+
+            // Ventas del mes
+            var monthStart = new System.DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).ToUniversalTime().ToString("O");
+            var monthEnd = System.DateTime.Today.AddDays(1).ToUniversalTime().ToString("O");
+            SalesThisMonth = await _saleRepo.GetTotalSalesByDateRangeAsync(monthStart, monthEnd);
         }
         catch { }
     }
@@ -61,7 +70,7 @@ public partial class ShellViewModel : ObservableObject
     [RelayCommand]
     private void OpenSales()
     {
-        var viewModel = new SalesViewModel(_productRepo, _saleRepo);
+        var viewModel = new SalesViewModel(_productRepo, _saleRepo, CurrentUser);
 
         // Suscribirse al evento de volver al dashboard
         viewModel.BackToDashboardRequested += () => CurrentView = null;
@@ -86,7 +95,14 @@ public partial class ShellViewModel : ObservableObject
     private void OpenHistory()
     {
         if (!IsAdmin) return;
-        MessageBox.Show("Módulo de Historial en desarrollo...", "Info");
+
+        var viewModel = new HistoryViewModel(_saleRepo);
+
+        // Suscribirse al evento de volver al dashboard
+        viewModel.BackToDashboardRequested += () => CurrentView = null;
+
+        var view = new HistoryView { DataContext = viewModel };
+        CurrentView = view;
     }
 
     [RelayCommand]

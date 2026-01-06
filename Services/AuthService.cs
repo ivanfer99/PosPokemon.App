@@ -6,17 +6,25 @@ namespace PosPokemon.App.Services;
 
 public sealed class AuthService
 {
-    private readonly UserRepository _users;
+    private readonly UserRepository _userRepo;
+    private readonly PasswordHasher _passwordHasher;
 
-    public AuthService(UserRepository users) => _users = users;
+    public AuthService(UserRepository userRepo)
+    {
+        _userRepo = userRepo;
+        _passwordHasher = new PasswordHasher();
+    }
 
     public async Task<User?> LoginAsync(string username, string password)
     {
-        var u = await _users.GetByUsernameAsync(username.Trim());
-        if (u == null) return null;
-        if (u.IsActive != 1) return null;
+        var user = await _userRepo.GetByUsernameAsync(username);
 
-        var ok = PasswordHasher.Verify(password, u.PasswordHash);
-        return ok ? u : null;
+        if (user == null || user.IsActive == 0)
+            return null;
+
+        if (!_passwordHasher.Verify(password, user.PasswordHash))
+            return null;
+
+        return user;
     }
 }

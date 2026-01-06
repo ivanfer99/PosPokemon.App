@@ -340,14 +340,14 @@
 
                                                 <!-- Precio unitario y subtotal -->
                                                 <StackPanel Margin="15,0,0,0" VerticalAlignment="Center">
-                                                    <TextBlock FontSize="11" Foreground="{StaticResource SecondaryTextColor}">
-                                                        <Run Text="S/ "/>
-                                                        <Run Text="{Binding UnitPrice, StringFormat='{}{0:N2}'}"/>
-                                                        <Run Text=" c/u"/>
-                                                    </TextBlock>
-                                                    <TextBlock FontSize="13" FontWeight="Bold" Foreground="{StaticResource PrimaryTextColor}">
-                                                        <Run Text="S/ "/>
-                                                        <Run Text="{Binding LineTotal, StringFormat='{}{0:N2}'}"/>
+                                                        <TextBlock FontSize="11" Foreground="{StaticResource SecondaryTextColor}">
+                                                            <Run Text="S/ "/>
+                                                            <Run Text="{Binding UnitPrice, Mode=OneWay, StringFormat='{}{0:N2}'}"/>
+                                                            <Run Text=" c/u"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock FontSize="13" FontWeight="Bold" Foreground="{StaticResource PrimaryTextColor}">
+                                                            <Run Text="S/ "/>
+                                                            <Run Text="{Binding LineTotal, Mode=OneWay, StringFormat='{}{0:N2}'}"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                             </StackPanel>

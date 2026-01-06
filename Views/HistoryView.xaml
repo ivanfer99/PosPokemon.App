@@ -1,12 +1,319 @@
 ﻿<UserControl x:Class="PosPokemon.App.Views.HistoryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PosPokemon.App.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+             Background="{StaticResource AppBackgroundColor}">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Botón Volver -->
+        <Button Grid.Row="0"
+                Content="⬅️ Volver al Dashboard"
+                HorizontalAlignment="Left"
+                Height="40"
+                Padding="15,0"
+                Margin="0,0,0,15"
+                Style="{StaticResource PrimaryButton}"
+                Command="{Binding BackToDashboardCommand}"/>
+
+        <!-- Header -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <TextBlock Text="📜 Historial de Ventas" 
+                     FontSize="28" 
+                     FontWeight="Bold"
+                     Foreground="{StaticResource PrimaryTextColor}"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="🔄 Actualizar"
+                      Height="45"
+                      Padding="20,0"
+                      Margin="0,0,10,0"
+                      Background="{StaticResource CardReportsColor}"
+                      Foreground="White"
+                      BorderThickness="0"
+                      Cursor="Hand"
+                      Command="{Binding RefreshCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                              CornerRadius="6"
+                                              Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource CardReportsHoverColor}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="📊 Exportar"
+                      Height="45"
+                      Padding="20,0"
+                      Style="{StaticResource PrimaryButton}"
+                      Command="{Binding ExportCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Filtros y Búsqueda -->
+        <Border Grid.Row="2" 
+                Background="White" 
+                CornerRadius="12" 
+                Padding="20"
+                Margin="0,0,0,15">
+            <Border.Effect>
+                <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Búsqueda por número -->
+                <TextBox Grid.Column="0"
+                       Height="45"
+                       Padding="15,0"
+                       FontSize="14"
+                       VerticalContentAlignment="Center"
+                       Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                       BorderBrush="#E0E0E0"
+                       BorderThickness="2">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                    </TextBox.InputBindings>
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TextBox">
+                                        <Border Background="White"
+                                              BorderBrush="{TemplateBinding BorderBrush}"
+                                              BorderThickness="{TemplateBinding BorderThickness}"
+                                              CornerRadius="8">
+                                            <Grid>
+                                                <TextBlock Text="🔍 Buscar por número de venta..."
+                                                         Foreground="#BDBDBD"
+                                                         VerticalAlignment="Center"
+                                                         Margin="15,0"
+                                                         IsHitTestVisible="False">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <ScrollViewer x:Name="PART_ContentHost"
+                                                            Margin="15,0"
+                                                            VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <!-- Fecha Desde -->
+                <DatePicker Grid.Column="2"
+                          Height="45"
+                          Width="150"
+                          SelectedDate="{Binding StartDate}"
+                          BorderBrush="#E0E0E0"
+                          BorderThickness="2"/>
+
+                <!-- Fecha Hasta -->
+                <DatePicker Grid.Column="4"
+                          Height="45"
+                          Width="150"
+                          SelectedDate="{Binding EndDate}"
+                          BorderBrush="#E0E0E0"
+                          BorderThickness="2"/>
+
+                <!-- Botón Buscar -->
+                <Button Grid.Column="6"
+                      Content="🔍 Buscar"
+                      Height="45"
+                      Padding="25,0"
+                      Style="{StaticResource PrimaryButton}"
+                      Command="{Binding SearchCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- DataGrid de Ventas -->
+        <Border Grid.Row="3" 
+                Background="White" 
+                CornerRadius="12" 
+                Padding="0">
+            <Border.Effect>
+                <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
+            </Border.Effect>
+
+            <DataGrid ItemsSource="{Binding Sales}"
+                    AutoGenerateColumns="False"
+                    CanUserAddRows="False"
+                    IsReadOnly="True"
+                    SelectionMode="Single"
+                    HeadersVisibility="Column"
+                    GridLinesVisibility="None"
+                    BorderThickness="0"
+                    RowHeight="55"
+                    FontSize="13">
+
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F5F5F5"/>
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryTextColor}"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="FontSize" Value="13"/>
+                        <Setter Property="Padding" Value="15,12"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                    </Style>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="White"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F8F9FA"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#E3F2FD"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="15,0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="DataGridCell">
+                                    <Border Background="{TemplateBinding Background}"
+                                          Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryTextColor}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+
+                <DataGrid.Columns>
+                    <!-- Número de Venta -->
+                    <DataGridTextColumn Header="N° Venta" Binding="{Binding SaleNumber}" Width="180">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontFamily" Value="Consolas"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryButtonColor}"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Fecha -->
+                    <DataGridTextColumn Header="Fecha" Binding="{Binding CreatedUtc, StringFormat='dd/MM/yyyy HH:mm'}" Width="150"/>
+
+                    <!-- Usuario -->
+                    <DataGridTextColumn Header="Usuario" Binding="{Binding Username}" Width="120"/>
+
+                    <!-- Items -->
+                    <DataGridTextColumn Header="Items" Binding="{Binding TotalItems}" Width="80">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Subtotal -->
+                    <DataGridTextColumn Header="Subtotal" Binding="{Binding Subtotal, StringFormat='S/ {0:N2}'}" Width="120">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Descuento -->
+                    <DataGridTextColumn Header="Descuento" Binding="{Binding Discount, StringFormat='S/ {0:N2}'}" Width="110">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Foreground" Value="{StaticResource DangerTextColor}"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Total -->
+                    <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat='S/ {0:N2}'}" Width="130">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Foreground" Value="{StaticResource SuccessTextColor}"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Método de Pago -->
+                    <DataGridTextColumn Header="Pago" Binding="{Binding PaymentMethod}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Acciones -->
+                    <DataGridTemplateColumn Header="Acciones" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <!-- Botón Ver Detalles -->
+                                    <Button Content="👁️"
+                                          Width="35"
+                                          Height="35"
+                                          ToolTip="Ver detalles"
+                                          Style="{StaticResource PrimaryButton}"
+                                          Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                          CommandParameter="{Binding}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
     </Grid>
 </UserControl>

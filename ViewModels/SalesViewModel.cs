@@ -14,6 +14,7 @@ public partial class SalesViewModel : ObservableObject
 {
     private readonly ProductRepository _productRepo;
     private readonly SaleRepository _saleRepo;
+    private readonly User _currentUser;
 
     [ObservableProperty] private string _searchText = "";
     [ObservableProperty] private ObservableCollection<Product> _searchResults = new();
@@ -27,10 +28,11 @@ public partial class SalesViewModel : ObservableObject
     // Evento para volver al dashboard
     public event Action? BackToDashboardRequested;
 
-    public SalesViewModel(ProductRepository productRepo, SaleRepository saleRepo)
+    public SalesViewModel(ProductRepository productRepo, SaleRepository saleRepo, User currentUser)
     {
         _productRepo = productRepo;
         _saleRepo = saleRepo;
+        _currentUser = currentUser;
     }
 
     [RelayCommand]
@@ -154,6 +156,7 @@ public partial class SalesViewModel : ObservableObject
             var sale = new Sale
             {
                 SaleNumber = GenerateSaleNumber(),
+                UserId = _currentUser.Id,  // Usar el ID del usuario actual
                 Subtotal = Subtotal,
                 Discount = Discount,
                 Total = Total,
@@ -226,6 +229,11 @@ public partial class CartItemViewModel : ObservableObject
     public decimal LineTotal => UnitPrice * Quantity;
 
     partial void OnQuantityChanged(int value)
+    {
+        OnPropertyChanged(nameof(LineTotal));
+    }
+
+    partial void OnUnitPriceChanged(decimal value)
     {
         OnPropertyChanged(nameof(LineTotal));
     }

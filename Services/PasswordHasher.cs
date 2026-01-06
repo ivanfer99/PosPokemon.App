@@ -1,46 +1,22 @@
 ﻿using System;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace PosPokemon.App.Services;
 
-public static class PasswordHasher
+public sealed class PasswordHasher
 {
-    // Formato: pbkdf2$iter$saltBase64$hashBase64
-    public static string Hash(string password, int iterations = 100_000)
+    public string Hash(string password)
     {
-        var salt = RandomNumberGenerator.GetBytes(16);
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
-        var hash = pbkdf2.GetBytes(32);
-
-        return $"pbkdf2${iterations}${Convert.ToBase64String(salt)}${Convert.ToBase64String(hash)}";
+        using var sha256 = SHA256.Create();
+        var bytes = Encoding.UTF8.GetBytes(password);
+        var hash = sha256.ComputeHash(bytes);
+        return Convert.ToBase64String(hash);
     }
 
-    public static bool Verify(string password, string stored)
+    public bool Verify(string password, string hash)
     {
-        if (string.IsNullOrWhiteSpace(stored)) return false;
-
-        stored = stored.Trim(); // <<< clave
-
-        var parts = stored.Split('$');
-        if (parts.Length != 4) return false;
-        if (!string.Equals(parts[0], "pbkdf2", StringComparison.Ordinal)) return false;
-
-        if (!int.TryParse(parts[1], out var iterations)) return false;
-
-        byte[] salt, expected;
-        try
-        {
-            salt = Convert.FromBase64String(parts[2]);
-            expected = Convert.FromBase64String(parts[3]);
-        }
-        catch
-        {
-            return false;
-        }
-
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
-        var actual = pbkdf2.GetBytes(expected.Length);
-
-        return CryptographicOperations.FixedTimeEquals(actual, expected);
+        var computed = Hash(password);
+        return computed == hash;
     }
 }

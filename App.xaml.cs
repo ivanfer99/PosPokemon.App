@@ -2,11 +2,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Windows;
-using Dapper; // 🔴 MUY IMPORTANTE
 using PosPokemon.App.Data;
-using PosPokemon.App.Repositories;
-using PosPokemon.App.Services;
-using PosPokemon.App.ViewModels;
 
 namespace PosPokemon.App;
 
@@ -16,66 +12,45 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // 🔴 CLAVE ABSOLUTA:
-        // Permite que Dapper mapee password_hash -> PasswordHash
-        // set_name -> SetName, created_utc -> CreatedUtc, etc.
-        DefaultTypeMap.MatchNamesWithUnderscores = true;
-
-        // Leer appsettings.json
-        var settingsPath = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "appsettings.json"
-        );
-
-        if (!File.Exists(settingsPath))
+        try
         {
-            MessageBox.Show("No se encontró appsettings.json");
-            Shutdown();
-            return;
-        }
+            // Leer configuración
+            var settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
 
-        var json = File.ReadAllText(settingsPath);
-        using var doc = JsonDocument.Parse(json);
-
-        var dbFile = doc.RootElement
-                        .GetProperty("Database")
-                        .GetProperty("FileName")
-                        .GetString()
-                     ?? "pospokemon.sqlite";
-
-        // Inicializar base de datos
-        var db = new Db(dbFile);
-        db.EnsureCreated();
-
-        // Repositorios / Servicios
-        var userRepo = new UserRepository(db);
-
-        // Crear o resetear admin (modo DEV)
-        await userRepo.EnsureDefaultAdminAsync();
-
-        var authService = new AuthService(userRepo);
-
-        // ViewModel + Window de Login
-        var loginVm = new LoginViewModel(authService);
-        var loginWin = new LoginWindow
-        {
-            DataContext = loginVm
-        };
-
-        // Evento cuando el login es exitoso
-        loginVm.LoginSucceeded += user =>
-        {
-            var shellVm = new ShellViewModel(user);
-            var shellWin = new ShellWindow
+            if (!File.Exists(settingsPath))
             {
-                DataContext = shellVm
-            };
+                MessageBox.Show(
+                    "No se encontró el archivo appsettings.json",
+                    "Error de Configuración",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+                Shutdown();
+                return;
+            }
 
-            shellWin.Show();
-            loginWin.Close();
-        };
+            var json = File.ReadAllText(settingsPath);
+            using var doc = JsonDocument.Parse(json);
+            var dbFile = doc.RootElement.GetProperty("Database").GetProperty("FileName").GetString() ?? "pospokemon.sqlite";
 
-        // Mostrar Login
-        loginWin.Show();
+            // Inicializar base de datos
+            var db = new Db(dbFile);
+            db.InitSchema();
+            await db.SeedAsync();
+
+            // Mostrar ventana de login
+            var loginWindow = new LoginWindow();
+            loginWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Error al inicializar la aplicación:\n\n{ex.Message}",
+                "Error Fatal",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+            );
+            Shutdown();
+        }
     }
 }

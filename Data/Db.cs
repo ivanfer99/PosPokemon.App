@@ -1,49 +1,68 @@
 ﻿using System;
+using System.Data;
 using System.IO;
-using System.Text;
-using Dapper;
+using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using Dapper;
+using PosPokemon.App.Services;
 
 namespace PosPokemon.App.Data;
 
 public sealed class Db
 {
-    private readonly string _dbPath;
     private readonly string _connectionString;
 
-    public Db(string dbFileName)
+    public Db(string dbFile)
     {
-        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        _dbPath = Path.Combine(baseDir, dbFileName);
-        _connectionString = new SqliteConnectionStringBuilder
-        {
-            DataSource = _dbPath,
-            ForeignKeys = true
-        }.ToString();
+        _connectionString = $"Data Source={dbFile}";
     }
 
-    public SqliteConnection OpenConnection()
-    {
-        var conn = new SqliteConnection(_connectionString);
-        conn.Open();
-        return conn;
-    }
+    public IDbConnection OpenConnection() => new SqliteConnection(_connectionString);
 
-    public void EnsureCreated()
+    public void InitSchema()
     {
-        if (!File.Exists(_dbPath))
-        {
-            // crea el archivo vacío
-            using var _ = File.Create(_dbPath);
-        }
-
         var schemaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Schema.sqlite.sql");
         if (!File.Exists(schemaPath))
-            throw new FileNotFoundException("No se encontró Schema.sql", schemaPath);
+            throw new FileNotFoundException($"Schema file not found: {schemaPath}");
 
-        var sql = File.ReadAllText(schemaPath, Encoding.UTF8);
+        var sql = File.ReadAllText(schemaPath);
 
         using var conn = OpenConnection();
         conn.Execute(sql);
+    }
+
+    public async Task SeedAsync()
+    {
+        using var conn = OpenConnection();
+
+        const string checkSql = "SELECT COUNT(*) FROM users WHERE username = 'admin'";
+        var exists = await conn.ExecuteScalarAsync<int>(checkSql);
+
+        if (exists == 0)
+        {
+            var passwordHasher = new PasswordHasher();
+            var adminHash = passwordHasher.Hash("admin");
+            var sellerHash = passwordHasher.Hash("seller");
+
+            const string insertSql = "INSERT INTO users (username, password_hash, role, is_active, created_utc) VALUES (@Username, @PasswordHash, @Role, @IsActive, @CreatedUtc)";
+
+            await conn.ExecuteAsync(insertSql, new
+            {
+                Username = "admin",
+                PasswordHash = adminHash,
+                Role = "ADMIN",
+                IsActive = 1,
+                CreatedUtc = DateTime.UtcNow.ToString("O")
+            });
+
+            await conn.ExecuteAsync(insertSql, new
+            {
+                Username = "seller",
+                PasswordHash = sellerHash,
+                Role = "SELLER",
+                IsActive = 1,
+                CreatedUtc = DateTime.UtcNow.ToString("O")
+            });
+        }
     }
 }
