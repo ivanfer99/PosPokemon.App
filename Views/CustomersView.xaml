@@ -1,0 +1,358 @@
+﻿<UserControl x:Class="PosPokemon.App.Views.CustomersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource AppBackgroundColor}">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,25">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="👥 Gestión de Clientes" 
+                         FontSize="28" 
+                         FontWeight="Bold"
+                         Foreground="{StaticResource PrimaryTextColor}"/>
+                <TextBlock Text="Administra tu base de clientes" 
+                         FontSize="14" 
+                         Foreground="{StaticResource SecondaryTextColor}"
+                         Margin="0,5,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="➕ Nuevo Cliente"
+                      Width="160"
+                      Height="45"
+                      Margin="0,0,10,0"
+                      Style="{StaticResource PrimaryButton}"
+                      Command="{Binding CreateCustomerCommand}"/>
+
+                <Button Content="🔙 Volver"
+                      Width="120"
+                      Height="45"
+                      Background="#95A5A6"
+                      Foreground="White"
+                      BorderThickness="0"
+                      Command="{Binding BackToDashboardCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                              CornerRadius="6">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#7F8C8D"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Search Bar -->
+        <Border Grid.Row="1" 
+              Background="White" 
+              CornerRadius="8" 
+              Padding="15"
+              Margin="0,0,0,20">
+            <Border.Effect>
+                <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                       Height="40"
+                       Padding="15,0"
+                       FontSize="14"
+                       VerticalContentAlignment="Center"
+                       Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchCustomersCommand}"/>
+                    </TextBox.InputBindings>
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TextBox">
+                                        <Border Background="White"
+                                              BorderBrush="#E0E0E0"
+                                              BorderThickness="2"
+                                              CornerRadius="6">
+                                            <Grid>
+                                                <TextBlock Text="🔍 Buscar por nombre o documento..."
+                                                         Foreground="#BDBDBD"
+                                                         VerticalAlignment="Center"
+                                                         Margin="15,0"
+                                                         IsHitTestVisible="False">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <ScrollViewer x:Name="PART_ContentHost"
+                                                            Margin="15,0"
+                                                            VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <Button Grid.Column="2"
+                      Content="Buscar"
+                      Width="100"
+                      Height="40"
+                      Style="{StaticResource PrimaryButton}"
+                      Command="{Binding SearchCustomersCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- Customers List -->
+        <Border Grid.Row="2" 
+              Background="White" 
+              CornerRadius="12" 
+              Padding="0">
+            <Border.Effect>
+                <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
+            </Border.Effect>
+
+            <DataGrid ItemsSource="{Binding Customers}"
+                    SelectedItem="{Binding SelectedCustomer}"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True"
+                    SelectionMode="Single"
+                    GridLinesVisibility="None"
+                    HeadersVisibility="Column"
+                    RowHeight="50"
+                    CanUserResizeRows="False"
+                    BorderThickness="0">
+
+                <DataGrid.Columns>
+                    <!-- Nombre -->
+                    <DataGridTextColumn Header="Nombre" 
+                                      Binding="{Binding Name}" 
+                                      Width="*"
+                                      FontSize="13"
+                                      FontWeight="SemiBold"/>
+
+                    <!-- Documento -->
+                    <DataGridTemplateColumn Header="Documento" Width="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding DocumentNumber}" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding DocumentType}" FontSize="11" Foreground="{StaticResource SecondaryTextColor}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Teléfono -->
+                    <DataGridTextColumn Header="Teléfono" 
+                                      Binding="{Binding Phone}" 
+                                      Width="150"
+                                      FontSize="13"/>
+
+                    <!-- Email -->
+                    <DataGridTextColumn Header="Email" 
+                                      Binding="{Binding Email}" 
+                                      Width="200"
+                                      FontSize="13"/>
+
+                    <!-- Estado -->
+                    <DataGridTemplateColumn Header="Estado" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="12" Padding="8,4" HorizontalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="1">
+                                                    <Setter Property="Background" Value="#E8F5E9"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="0">
+                                                    <Setter Property="Background" Value="#FFEBEE"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock FontSize="11" FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="1">
+                                                        <Setter Property="Text" Value="✓ Activo"/>
+                                                        <Setter Property="Foreground" Value="#2E7D32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="0">
+                                                        <Setter Property="Text" Value="✗ Inactivo"/>
+                                                        <Setter Property="Foreground" Value="#C62828"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Acciones -->
+                    <DataGridTemplateColumn Header="Acciones" Width="280">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Content="📊 Historial"
+                                          Width="90"
+                                          Height="30"
+                                          Margin="0,0,5,0"
+                                          FontSize="11"
+                                          Background="#2196F3"
+                                          Foreground="White"
+                                          BorderThickness="0"
+                                          Command="{Binding DataContext.ViewPurchaseHistoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                          CommandParameter="{Binding}">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                  CornerRadius="4">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#1976D2"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Button Content="✏️ Editar"
+                                          Width="70"
+                                          Height="30"
+                                          Margin="0,0,5,0"
+                                          FontSize="11"
+                                          Background="#FF9800"
+                                          Foreground="White"
+                                          BorderThickness="0"
+                                          Command="{Binding DataContext.EditCustomerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                          CommandParameter="{Binding}">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                  CornerRadius="4">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#F57C00"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Button Width="90"
+                                          Height="30"
+                                          FontSize="11"
+                                          Foreground="White"
+                                          BorderThickness="0"
+                                          Command="{Binding DataContext.ToggleActiveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                          CommandParameter="{Binding}">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                  CornerRadius="4">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="1">
+                                                        <Setter Property="Content" Value="❌ Desactivar"/>
+                                                        <Setter Property="Background" Value="#F44336"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="0">
+                                                        <Setter Property="Content" Value="✓ Activar"/>
+                                                        <Setter Property="Background" Value="#4CAF50"/>
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Opacity" Value="0.8"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="3" 
+              Background="#F5F5F5" 
+              CornerRadius="6" 
+              Padding="15,10"
+              Margin="0,20,0,0">
+            <TextBlock Text="{Binding StatusMessage}" 
+                     FontSize="12"
+                     Foreground="{StaticResource SecondaryTextColor}"/>
+        </Border>
+    </Grid>
+</UserControl>

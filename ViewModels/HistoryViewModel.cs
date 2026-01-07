@@ -107,7 +107,19 @@ public partial class HistoryViewModel : ObservableObject
 Número: {sale.SaleNumber}
 Fecha: {DateTime.Parse(sale.CreatedUtc):dd/MM/yyyy HH:mm}
 Usuario: {sale.Username}
-Método de Pago: {sale.PaymentMethod}
+
+💳 MÉTODO DE PAGO
+{sale.PaymentMethod}";
+
+            // Agregar detalles de efectivo si aplica
+            if (sale.PaymentMethod == "Efectivo")
+            {
+                details += $@"
+Recibido: S/ {sale.AmountReceived:N2}
+Vuelto: S/ {sale.Change:N2}";
+            }
+
+            details += $@"
 
 📦 PRODUCTOS ({items.Count} items):
 ";
@@ -165,5 +177,46 @@ TOTAL: S/ {sale.Total:N2}
     private void BackToDashboard()
     {
         BackToDashboardRequested?.Invoke();
+    }
+
+    [RelayCommand]
+    private async Task PrintTicket(SaleWithDetails sale)
+    {
+        try
+        {
+            var ticketData = await _saleRepo.GetSaleTicketAsync(sale.Id);
+
+            if (ticketData == null)
+            {
+                MessageBox.Show(
+                    "No se pudo cargar la información de la venta.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+                return;
+            }
+
+            var ticketGenerator = new Services.TicketGenerator();
+            var pdfPath = ticketGenerator.GeneratePdf(ticketData);
+
+            ticketGenerator.OpenPdf(pdfPath);
+
+            MessageBox.Show(
+                $"Ticket generado exitosamente:\n\n{pdfPath}",
+                "Impresión",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information
+            );
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Error al generar el ticket:\n{ex.Message}",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error
+            );
+        }
     }
 }

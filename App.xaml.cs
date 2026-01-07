@@ -25,6 +25,10 @@ namespace PosPokemon.App
                 var db = new Db(dbFile);
 
                 db.InitSchema();
+                db.MigrateToV2(); // ✅ AGREGAR ESTA LÍNEA
+                db.MigrateToV3();
+                db.MigrateToV4(); // ✅ AGREGAR ESTA LÍNEA
+                db.MigrateToV5();
                 await db.SeedAsync();
 
                 await EnsureAdminAsync(db);

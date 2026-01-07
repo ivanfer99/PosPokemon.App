@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace PosPokemon.App.Utils;
+namespace PosPokemon.App.Converters;
 
 public sealed class NullToVisibilityConverter : IValueConverter
 {
@@ -16,4 +16,5 @@ public sealed class NullToVisibilityConverter : IValueConverter
     {
         throw new NotImplementedException();
     }
+
 }

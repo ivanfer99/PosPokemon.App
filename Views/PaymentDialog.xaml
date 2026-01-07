@@ -1,0 +1,231 @@
+﻿<Window x:Class="PosPokemon.App.Views.PaymentDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="💰 Procesar Pago" 
+        Height="700" 
+        Width="520"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="{StaticResource AppBackgroundColor}"
+        MinHeight="600"
+        MinWidth="520">
+
+    <!-- ✅ AGREGAR ScrollViewer -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Border Margin="20" 
+                Background="White" 
+                CornerRadius="12" 
+                Padding="30">
+            <Border.Effect>
+                <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Título -->
+                <TextBlock Grid.Row="0" 
+                         Text="💰 Procesar Pago"
+                         FontSize="24" 
+                         FontWeight="Bold"
+                         Foreground="{StaticResource PrimaryTextColor}"
+                         Margin="0,0,0,20"/>
+
+                <!-- Total a Pagar -->
+                <Border Grid.Row="1" 
+                        Background="#E8F5E9" 
+                        CornerRadius="8" 
+                        Padding="15"
+                        Margin="0,0,0,20">
+                    <Grid>
+                        <TextBlock Text="Total a Pagar:" 
+                                 FontSize="16"
+                                 Foreground="{StaticResource SecondaryTextColor}"/>
+                        <TextBlock Text="{Binding TotalToPay, StringFormat='S/ {0:N2}'}"
+                                 HorizontalAlignment="Right"
+                                 FontSize="28"
+                                 FontWeight="Bold"
+                                 Foreground="{StaticResource SuccessTextColor}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Método de Pago -->
+                <TextBlock Grid.Row="2" 
+                         Text="Método de Pago" 
+                         Foreground="{StaticResource SecondaryTextColor}"
+                         FontSize="12"
+                         Margin="0,0,0,5"/>
+                <ComboBox Grid.Row="3"
+                        Height="45"
+                        Padding="12,0"
+                        FontSize="14"
+                        ItemsSource="{Binding PaymentMethods}"
+                        SelectedItem="{Binding SelectedPaymentMethod}"
+                        Margin="0,0,0,20"/>
+
+                <!-- Monto Recibido (solo para efectivo) -->
+                <Grid Grid.Row="4" Margin="0,0,0,20">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPaymentMethod}" Value="Efectivo">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Label -->
+                    <TextBlock Grid.Row="0" 
+                             Text="Monto Recibido (Efectivo)" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+
+                    <!-- Input -->
+                    <TextBox Grid.Row="1"
+                           Height="45"
+                           Padding="12,0"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Text="{Binding AmountReceived, UpdateSourceTrigger=PropertyChanged}"
+                           Margin="0,0,0,10"/>
+
+                    <!-- Botones Rápidos -->
+                    <TextBlock Grid.Row="2" 
+                             Text="Montos Rápidos:" 
+                             FontSize="11"
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             Margin="0,0,0,5"/>
+
+                    <UniformGrid Grid.Row="3" Columns="3" Rows="2">
+                        <Button Content="S/ 10" Margin="2" Height="35" 
+                                Click="OnQuickAmount_Click" Tag="10"
+                                Style="{StaticResource PrimaryButton}"/>
+                        <Button Content="S/ 20" Margin="2" Height="35"
+                                Click="OnQuickAmount_Click" Tag="20"
+                                Style="{StaticResource PrimaryButton}"/>
+                        <Button Content="S/ 50" Margin="2" Height="35"
+                                Click="OnQuickAmount_Click" Tag="50"
+                                Style="{StaticResource PrimaryButton}"/>
+                        <Button Content="S/ 100" Margin="2" Height="35"
+                                Click="OnQuickAmount_Click" Tag="100"
+                                Style="{StaticResource PrimaryButton}"/>
+                        <Button Content="S/ 200" Margin="2" Height="35"
+                                Click="OnQuickAmount_Click" Tag="200"
+                                Style="{StaticResource PrimaryButton}"/>
+                        <Button Content="Exacto" Margin="2" Height="35"
+                                Click="OnQuickAmountExact_Click"
+                                Style="{StaticResource PrimaryButton}"/>
+                    </UniformGrid>
+                </Grid>
+
+                <!-- Vuelto -->
+                <Border Grid.Row="5" 
+                        Background="#FFF3E0" 
+                        CornerRadius="8" 
+                        Padding="15"
+                        Margin="0,0,0,15">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPaymentMethod}" Value="Efectivo">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <Grid>
+                        <TextBlock Text="💵 Vuelto:" 
+                                 FontSize="18"
+                                 FontWeight="Bold"
+                                 Foreground="{StaticResource SecondaryTextColor}"/>
+                        <TextBlock Text="{Binding Change, StringFormat='S/ {0:N2}'}"
+                                 HorizontalAlignment="Right"
+                                 FontSize="32"
+                                 FontWeight="Bold"
+                                 Foreground="#FF6F00"/>
+                    </Grid>
+                </Border>
+
+                <!-- Mensaje de Error -->
+                <TextBlock Grid.Row="6" 
+                         Text="{Binding ErrorMessage}"
+                         Foreground="{StaticResource DangerTextColor}"
+                         FontSize="13"
+                         FontWeight="SemiBold"
+                         TextWrapping="Wrap"
+                         HorizontalAlignment="Center"
+                         Margin="0,0,0,15">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- Botones -->
+                <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                    <Button Content="Cancelar"
+                          Width="120"
+                          Height="45"
+                          Margin="0,0,10,0"
+                          Background="#95A5A6"
+                          Foreground="White"
+                          BorderThickness="0"
+                          Command="{Binding CancelCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                  CornerRadius="6">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#7F8C8D"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="✅ Confirmar Pago"
+                          Width="180"
+                          Height="45"
+                          Style="{StaticResource PrimaryButton}"
+                          Command="{Binding ConfirmPaymentCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </ScrollViewer>
+</Window>

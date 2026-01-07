@@ -1,97 +1,288 @@
 ﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="PosPokemon.App.Views.SettingsView"
-             Background="{StaticResource AppBackgroundColor}" d:DesignHeight="875.576" d:DesignWidth="821.278">
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             mc:Ignorable="d" 
+             x:Class="PosPokemon.App.Views.SettingsView"
+             Background="{StaticResource AppBackgroundColor}" 
+             d:DesignHeight="900" 
+             d:DesignWidth="900">
 
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <!-- Volver -->
-        <Button Grid.Row="0"
-                Content="⬅️ Volver al Dashboard"
-                HorizontalAlignment="Left"
-                Height="40"
-                Padding="15,0"
-                Margin="0,0,0,15"
-                Style="{StaticResource PrimaryButton}"
-                Command="{Binding BackToDashboardCommand}"/>
-
-        <!-- Header -->
-        <Grid Grid.Row="1" Margin="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <TextBlock Text="⚙️ Configuración"
-                       FontSize="28"
-                       FontWeight="Bold"
-                       Foreground="{StaticResource PrimaryTextColor}"/>
-
-            <Button Grid.Column="1"
-                    Content="🔄 Cargar"
-                    Height="45"
-                    Padding="20,0"
+            <!-- Volver -->
+            <Button Grid.Row="0"
+                    Content="⬅️ Volver al Dashboard"
+                    HorizontalAlignment="Left"
+                    Height="40"
+                    Padding="15,0"
+                    Margin="0,0,0,15"
                     Style="{StaticResource PrimaryButton}"
-                    Command="{Binding LoadCommand}"/>
+                    Command="{Binding BackToDashboardCommand}"/>
 
-            <Button Grid.Column="3"
-                    Content="💾 Guardar"
-                    Height="45"
-                    Padding="20,0"
-                    Style="{StaticResource PrimaryButton}"
-                    Command="{Binding SaveCommand}"/>
-        </Grid>
+            <!-- Header -->
+            <Grid Grid.Row="1" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-        <!-- Form -->
-        <Border Grid.Row="2" Background="White" CornerRadius="12" Padding="20">
-            <Border.Effect>
-                <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.08" BlurRadius="10" ShadowDepth="2"/>
-            </Border.Effect>
+                <TextBlock Text="⚙️ Configuración"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryTextColor}"/>
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                <Button Grid.Column="1"
+                        Content="🔄 Cargar"
+                        Height="45"
+                        Padding="20,0"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding LoadCommand}"/>
 
-                <TextBlock Text="Nombre de la tienda" FontWeight="Bold"/>
-                <TextBox Grid.Row="1" Height="40" Margin="0,6,0,12"
-                         Text="{Binding StoreName, UpdateSourceTrigger=PropertyChanged}"/>
-
-                <TextBlock Grid.Row="2" Text="Símbolo de moneda (S/ o $)" FontWeight="Bold"/>
-                <TextBox Grid.Row="3" Height="40" Margin="0,6,0,12"
-                         Width="120"
-                         Text="{Binding CurrencySymbol, UpdateSourceTrigger=PropertyChanged}"/>
-
-                <TextBlock Grid.Row="4" Text="Stock mínimo (alerta bajo stock)" FontWeight="Bold"/>
-                <TextBox Grid.Row="5" Height="40" Margin="0,6,0,12"
-                         Width="120"
-                         Text="{Binding LowStockThreshold, UpdateSourceTrigger=PropertyChanged}"/>
-
-                <TextBlock Grid.Row="6" Text="Nota por defecto en ventas (opcional)" FontWeight="Bold"/>
-                <TextBox Grid.Row="7" Height="80" Margin="0,6,0,12"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         Text="{Binding DefaultSaleNote, UpdateSourceTrigger=PropertyChanged}"/>
-
-                <TextBlock Grid.Row="8"
-                           Foreground="{StaticResource SecondaryTextColor}"
-                           FontWeight="SemiBold"
-                           Text="{Binding StatusMessage}"
-                           Margin="0,10,0,0"/>
+                <Button Grid.Column="3"
+                        Content="💾 Guardar"
+                        Height="45"
+                        Padding="20,0"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding SaveCommand}"/>
             </Grid>
-        </Border>
-    </Grid>
+
+            <!-- Formularios -->
+            <StackPanel Grid.Row="2">
+
+                <!-- ========== SECCIÓN: INFORMACIÓN DE LA TIENDA ========== -->
+                <Border Background="White" CornerRadius="12" Padding="25" Margin="0,0,0,20">
+                    <Border.Effect>
+                        <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.08" BlurRadius="10" ShadowDepth="2"/>
+                    </Border.Effect>
+
+                    <StackPanel>
+                        <TextBlock Text="🏪 Información de la Tienda" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryTextColor}"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- Nombre de la Tienda -->
+                        <TextBlock Text="Nombre de la Tienda *" 
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource SecondaryTextColor}"
+                                   FontSize="12"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Height="40" 
+                                 Margin="0,0,0,15"
+                                 Padding="12,0"
+                                 FontSize="14"
+                                 Text="{Binding StoreName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Dirección -->
+                        <TextBlock Text="Dirección" 
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource SecondaryTextColor}"
+                                   FontSize="12"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Height="40" 
+                                 Margin="0,0,0,15"
+                                 Padding="12,0"
+                                 FontSize="14"
+                                 Text="{Binding StoreAddress, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Teléfono y RUC -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Teléfono -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Teléfono" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource SecondaryTextColor}"
+                                           FontSize="12"
+                                           Margin="0,0,0,5"/>
+                                <TextBox Height="40" 
+                                         Padding="12,0"
+                                         FontSize="14"
+                                         Text="{Binding StorePhone, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <!-- RUC -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="RUC / NIT" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource SecondaryTextColor}"
+                                           FontSize="12"
+                                           Margin="0,0,0,5"/>
+                                <TextBox Height="40" 
+                                         Padding="12,0"
+                                         FontSize="14"
+                                         Text="{Binding StoreRuc, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Logo -->
+                        <TextBlock Text="Logo de la Tienda (Opcional)" 
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource SecondaryTextColor}"
+                                   FontSize="12"
+                                   Margin="0,0,0,5"/>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                     Height="40" 
+                                     Padding="12,0"
+                                     FontSize="13"
+                                     IsReadOnly="True"
+                                     Text="{Binding StoreLogoPath, Mode=OneWay}"
+                                     Background="#F5F5F5"/>
+
+                            <Button Grid.Column="2"
+                                    Content="📁 Seleccionar"
+                                    Height="40"
+                                    Padding="15,0"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding SelectLogoCommand}"/>
+
+                            <Button Grid.Column="4"
+                                    Content="🗑️ Limpiar"
+                                    Height="40"
+                                    Padding="15,0"
+                                    Background="#E74C3C"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    Command="{Binding ClearLogoCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                          CornerRadius="6">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#C0392B"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+
+                        <TextBlock Text="💡 Formatos soportados: PNG, JPG, JPEG, BMP"
+                                   FontSize="11"
+                                   FontStyle="Italic"
+                                   Foreground="{StaticResource SecondaryTextColor}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== SECCIÓN: CONFIGURACIÓN GENERAL ========== -->
+                <Border Background="White" CornerRadius="12" Padding="25">
+                    <Border.Effect>
+                        <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.08" BlurRadius="10" ShadowDepth="2"/>
+                    </Border.Effect>
+
+                    <StackPanel>
+                        <TextBlock Text="⚙️ Configuración General" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryTextColor}"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- Símbolo de Moneda y Stock Bajo -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Símbolo -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Símbolo de Moneda" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource SecondaryTextColor}"
+                                           FontSize="12"
+                                           Margin="0,0,0,5"/>
+                                <TextBox Height="40" 
+                                         Padding="12,0"
+                                         FontSize="14"
+                                         Text="{Binding CurrencySymbol, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <!-- Stock Bajo -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Stock Mínimo (Alerta)" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource SecondaryTextColor}"
+                                           FontSize="12"
+                                           Margin="0,0,0,5"/>
+                                <TextBox Height="40" 
+                                         Padding="12,0"
+                                         FontSize="14"
+                                         Text="{Binding LowStockThreshold, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Nota por Defecto -->
+                        <TextBlock Text="Nota por Defecto en Ventas" 
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource SecondaryTextColor}"
+                                   FontSize="12"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Height="80" 
+                                 Margin="0,0,0,15"
+                                 Padding="12,10"
+                                 FontSize="13"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 Text="{Binding DefaultSaleNote, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Mensaje de Estado -->
+                        <TextBlock Foreground="{StaticResource SuccessTextColor}"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"
+                                   Text="{Binding StatusMessage}"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding StatusMessage}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

@@ -21,7 +21,7 @@ public sealed class SaleRepository
         sale.UpdatedUtc = now;
 
         using var conn = _db.OpenConnection();
-        conn.Open();  // Abrir la conexión antes de iniciar la transacción
+        conn.Open();
         using var tx = conn.BeginTransaction();
 
         try
@@ -43,11 +43,14 @@ public sealed class SaleRepository
 
             // Insertar venta
             const string sqlSale = @"
-INSERT INTO sales (sale_number, user_id, subtotal, discount, total, payment_method, note, created_utc, updated_utc)
-VALUES (@SaleNumber, @UserId, @Subtotal, @Discount, @Total, @PaymentMethod, @Note, @CreatedUtc, @UpdatedUtc);
+INSERT INTO sales (sale_number, user_id, subtotal, discount, total, payment_method, amount_received, change, note, created_utc, updated_utc)
+VALUES (@SaleNumber, @UserId, @Subtotal, @Discount, @Total, @PaymentMethod, @AmountReceived, @Change, @Note, @CreatedUtc, @UpdatedUtc);
 SELECT last_insert_rowid();";
 
             var saleId = await conn.ExecuteScalarAsync<long>(sqlSale, sale, tx);
+
+            // ✅ ASIGNAR ID A LA VENTA
+            sale.Id = saleId;
 
             // Insertar items
             const string sqlItem = @"
@@ -93,6 +96,8 @@ SELECT
     s.discount as Discount,
     s.total as Total,
     s.payment_method as PaymentMethod,
+    s.amount_received as AmountReceived,
+    s.change as Change,
     s.note as Note,
     s.created_utc as CreatedUtc,
     s.updated_utc as UpdatedUtc,
@@ -138,6 +143,8 @@ SELECT
     s.discount as Discount,
     s.total as Total,
     s.payment_method as PaymentMethod,
+    s.amount_received as AmountReceived,
+    s.change as Change,
     s.note as Note,
     s.created_utc as CreatedUtc,
     s.updated_utc as UpdatedUtc,
@@ -193,5 +200,81 @@ ORDER BY si.id;";
 
         using var conn = _db.OpenConnection();
         return await conn.ExecuteScalarAsync<decimal>(sql, parameters);
+    }
+
+    /// <summary>
+    /// Obtiene toda la información de una venta para generar el ticket
+    /// ✅ CORREGIDO: Conversión explícita de double a decimal
+    /// </summary>
+    public async Task<SaleTicket?> GetSaleTicketAsync(long saleId)
+    {
+        using var conn = _db.OpenConnection();
+
+        // Obtener información de la venta
+        const string saleSql = @"
+SELECT 
+    s.sale_number as SaleNumber,
+    s.subtotal as Subtotal,
+    s.discount as Discount,
+    s.total as Total,
+    s.payment_method as PaymentMethod,
+    s.amount_received as AmountReceived,
+    s.change as Change,
+    s.note as Note,
+    s.created_utc as CreatedUtc,
+    u.username as Cashier
+FROM sales s
+LEFT JOIN users u ON s.user_id = u.id
+WHERE s.id = @saleId;";
+
+        var saleData = await conn.QueryFirstOrDefaultAsync<dynamic>(saleSql, new { saleId });
+
+        if (saleData == null) return null;
+
+        // Obtener items de la venta
+        const string itemsSql = @"
+SELECT 
+    p.name as ProductName,
+    si.qty as Quantity,
+    si.unit_price as UnitPrice,
+    (si.qty * si.unit_price) as LineTotal
+FROM sale_items si
+LEFT JOIN products p ON si.product_id = p.id
+WHERE si.sale_id = @saleId;";
+
+        var itemsData = await conn.QueryAsync<dynamic>(itemsSql, new { saleId });
+
+        // ✅ CONVERSIÓN EXPLÍCITA de double a decimal
+        var items = itemsData.Select(item => new SaleTicketItem
+        {
+            ProductName = (string)item.ProductName ?? "Producto desconocido",
+            Quantity = Convert.ToInt32(item.Quantity),
+            UnitPrice = Convert.ToDecimal((double)item.UnitPrice),
+            LineTotal = Convert.ToDecimal((double)item.LineTotal)
+        }).ToList();
+
+        // Parsear fecha
+        var createdDate = DateTime.Parse((string)saleData.CreatedUtc);
+
+        // ✅ CONVERSIÓN EXPLÍCITA de double a decimal
+        return new SaleTicket
+        {
+            SaleNumber = (string)saleData.SaleNumber,
+            Date = createdDate.ToString("dd/MM/yyyy"),
+            Time = createdDate.ToString("HH:mm:ss"),
+            Cashier = (string)saleData.Cashier ?? "Sistema",
+
+            Items = items,
+
+            Subtotal = Convert.ToDecimal((double)saleData.Subtotal),
+            Discount = Convert.ToDecimal((double)saleData.Discount),
+            Total = Convert.ToDecimal((double)saleData.Total),
+
+            PaymentMethod = (string)saleData.PaymentMethod,
+            AmountReceived = Convert.ToDecimal((double)saleData.AmountReceived),
+            Change = Convert.ToDecimal((double)saleData.Change),
+
+            Note = saleData.Note as string
+        };
     }
 }

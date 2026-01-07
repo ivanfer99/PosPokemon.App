@@ -32,10 +32,14 @@ public partial class ShellViewModel : ObservableObject
     private readonly Db _db;
     private readonly ProductRepository _productRepo;
     private readonly SaleRepository _saleRepo;
+    private readonly DiscountCampaignRepository _campaignRepo;
+    private readonly CustomerRepository _customerRepo;  // ✅ AGREGAR ESTE CAMPO
+    private readonly User _currentUser;
 
     public ShellViewModel(User user)
     {
         CurrentUser = user;
+        _currentUser = user;
 
         // Leer appsettings.json para ubicar la DB
         var settingsPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
@@ -47,11 +51,13 @@ public partial class ShellViewModel : ObservableObject
             .GetProperty("FileName")
             .GetString() ?? "pospokemon.sqlite";
 
-        // ✅ Guardar Db como campo para reutilizarlo en Reportes/Settings/etc.
+        // ✅ Guardar Db como campo para reutilizarlo
         _db = new Db(dbFile);
 
         _productRepo = new ProductRepository(_db);
         _saleRepo = new SaleRepository(_db);
+        _campaignRepo = new DiscountCampaignRepository(_db);
+        _customerRepo = new CustomerRepository(_db);  // ✅ INICIALIZAR REPOSITORIO DE CLIENTES
 
         LoadDashboardStats();
     }
@@ -88,7 +94,8 @@ public partial class ShellViewModel : ObservableObject
     [RelayCommand]
     private void OpenSales()
     {
-        var viewModel = new SalesViewModel(_productRepo, _saleRepo, CurrentUser);
+        // ✅ PASAR TODOS LOS REPOSITORIOS AL CONSTRUCTOR
+        var viewModel = new SalesViewModel(_productRepo, _saleRepo, _campaignRepo, _customerRepo, _currentUser);
 
         // volver al dashboard
         viewModel.BackToDashboardRequested += () => CurrentView = null;
@@ -123,7 +130,7 @@ public partial class ShellViewModel : ObservableObject
         CurrentView = view;
     }
 
-    // ✅ REPORTES (YA FUNCIONA)
+    // ✅ REPORTES
     [RelayCommand]
     private async Task OpenReports()
     {
@@ -165,7 +172,6 @@ public partial class ShellViewModel : ObservableObject
         await vm.LoadAsync();
     }
 
-
     [RelayCommand]
     private async Task OpenSettings()
     {
@@ -182,6 +188,35 @@ public partial class ShellViewModel : ObservableObject
         await vm.LoadAsync();
     }
 
+    // ✅ CAMPAÑAS DE DESCUENTO
+    [RelayCommand]
+    private async Task OpenDiscountCampaigns()
+    {
+        if (!IsAdmin) return;
+
+        var vm = new DiscountCampaignsViewModel(_campaignRepo, _productRepo, _currentUser);
+        vm.BackToDashboardRequested += () => CurrentView = null;
+
+        var view = new DiscountCampaignsView { DataContext = vm };
+        CurrentView = view;
+
+        await vm.LoadCampaignsAsync();
+    }
+
+    // ✅ NUEVO: GESTIÓN DE CLIENTES
+    [RelayCommand]
+    private async Task OpenCustomers()
+    {
+        if (!IsAdmin) return;
+
+        var vm = new CustomersViewModel(_customerRepo);
+        vm.BackToDashboardRequested += () => CurrentView = null;
+
+        var view = new CustomersView { DataContext = vm };
+        CurrentView = view;
+
+        await vm.LoadAsync();
+    }
 
     // ======================
     // LOGOUT

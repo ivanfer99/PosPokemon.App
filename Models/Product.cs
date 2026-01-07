@@ -12,7 +12,7 @@ public sealed class Product
     public string? Language { get; set; } = "ES";
     public decimal Cost { get; set; }
     public decimal Price { get; set; }
-    public int Stock { get; set; }
+    public long Stock { get; set; }
     public string CreatedUtc { get; set; } = "";
     public string UpdatedUtc { get; set; } = "";
 }

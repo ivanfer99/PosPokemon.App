@@ -42,4 +42,19 @@ public partial class ShellWindow : Window
     {
         ViewModel.OpenSettingsCommand.Execute(null);
     }
+    // ✅ NUEVO: Navegación a Descuentos
+    private void Card_Discounts_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is ShellViewModel vm)
+        {
+            vm.OpenDiscountCampaignsCommand.Execute(null);
+        }
+    }
+    private async void Card_Customers_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is ShellViewModel vm)
+        {
+            await vm.OpenCustomersCommand.ExecuteAsync(null);
+        }
+    }
 }

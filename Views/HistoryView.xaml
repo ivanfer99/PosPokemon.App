@@ -296,18 +296,52 @@
                     </DataGridTextColumn>
 
                     <!-- Acciones -->
-                    <DataGridTemplateColumn Header="Acciones" Width="120">
+                    <!-- Acciones -->
+                    <DataGridTemplateColumn Header="Acciones" Width="160">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <!-- Botón Ver Detalles -->
                                     <Button Content="👁️"
-                                          Width="35"
-                                          Height="35"
-                                          ToolTip="Ver detalles"
-                                          Style="{StaticResource PrimaryButton}"
-                                          Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                          CommandParameter="{Binding}"/>
+                      Width="35"
+                      Height="35"
+                      Margin="0,0,5,0"
+                      ToolTip="Ver detalles"
+                      Style="{StaticResource PrimaryButton}"
+                      Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      CommandParameter="{Binding}"/>
+
+                                    <!-- ✅ NUEVO: Botón Imprimir -->
+                                    <Button Content="🖨️"
+                      Width="35"
+                      Height="35"
+                      ToolTip="Imprimir ticket"
+                      Background="{StaticResource CardReportsColor}"
+                      Foreground="White"
+                      BorderThickness="0"
+                      Cursor="Hand"
+                      Command="{Binding DataContext.PrintTicketCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      CommandParameter="{Binding}">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                              CornerRadius="6">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource CardReportsHoverColor}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

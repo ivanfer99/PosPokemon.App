@@ -1,0 +1,167 @@
+﻿<Window x:Class="PosPokemon.App.Views.CustomerFormWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Formulario de Cliente" 
+        Height="600" 
+        Width="550"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="{StaticResource AppBackgroundColor}">
+
+    <Grid Margin="25">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Título -->
+        <TextBlock Grid.Row="0" 
+                 x:Name="TxtTitle"
+                 Text="➕ Nuevo Cliente"
+                 FontSize="24" 
+                 FontWeight="Bold"
+                 Foreground="{StaticResource PrimaryTextColor}"
+                 Margin="0,0,0,20"/>
+
+        <!-- Formulario -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Border Background="White" 
+                    CornerRadius="12" 
+                    Padding="25">
+                <Border.Effect>
+                    <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
+                </Border.Effect>
+
+                <StackPanel>
+                    <!-- Tipo de Documento -->
+                    <TextBlock Text="Tipo de Documento *" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <ComboBox x:Name="CmbDocumentType"
+                            Height="40"
+                            FontSize="14"
+                            Margin="0,0,0,15"
+                            SelectedIndex="0">
+                        <ComboBoxItem Content="DNI"/>
+                        <ComboBoxItem Content="RUC"/>
+                        <ComboBoxItem Content="CE"/>
+                        <ComboBoxItem Content="PASSPORT"/>
+                    </ComboBox>
+
+                    <!-- Número de Documento -->
+                    <TextBlock Text="Número de Documento *" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtDocumentNumber"
+                           Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Nombre -->
+                    <TextBlock Text="Nombre Completo *" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtName"
+                           Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Teléfono -->
+                    <TextBlock Text="Teléfono" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtPhone"
+                           Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Email -->
+                    <TextBlock Text="Email" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtEmail"
+                           Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Dirección -->
+                    <TextBlock Text="Dirección" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtAddress"
+                           Height="60"
+                           Padding="12,8"
+                           FontSize="14"
+                           TextWrapping="Wrap"
+                           AcceptsReturn="True"
+                           VerticalScrollBarVisibility="Auto"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Notas -->
+                    <TextBlock Text="Notas" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtNotes"
+                           Height="60"
+                           Padding="12,8"
+                           FontSize="14"
+                           TextWrapping="Wrap"
+                           AcceptsReturn="True"
+                           VerticalScrollBarVisibility="Auto"
+                           Margin="0,0,0,0"/>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!-- Botones -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Cancelar"
+                  Width="120"
+                  Height="45"
+                  Margin="0,0,10,0"
+                  Background="#95A5A6"
+                  Foreground="White"
+                  BorderThickness="0"
+                  Click="OnCancel">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                          CornerRadius="6">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#7F8C8D"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="💾 Guardar Cliente"
+                  Width="180"
+                  Height="45"
+                  Style="{StaticResource PrimaryButton}"
+                  Click="OnSave"/>
+        </StackPanel>
+    </Grid>
+</Window>

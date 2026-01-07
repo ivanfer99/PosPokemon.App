@@ -14,7 +14,7 @@ public partial class ProductFormViewModel : ObservableObject
     [ObservableProperty] private string _language = "ES";
     [ObservableProperty] private decimal _cost;
     [ObservableProperty] private decimal _price;
-    [ObservableProperty] private int _stock;
+    [ObservableProperty] private long _stock;
 
     public string Title { get; }
     public Product? ExistingProduct { get; }
