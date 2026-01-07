@@ -21,10 +21,26 @@ public sealed class SaleRepository
         sale.UpdatedUtc = now;
 
         using var conn = _db.OpenConnection();
+        conn.Open();  // Abrir la conexión antes de iniciar la transacción
         using var tx = conn.BeginTransaction();
 
         try
         {
+            // Validar stock disponible para cada producto antes de registrar la venta
+            foreach (var item in items)
+            {
+                const string sqlCheckStock = "SELECT name, stock FROM products WHERE id = @Id;";
+                var product = await conn.QueryFirstOrDefaultAsync<Product>(sqlCheckStock, new { Id = item.ProductId }, tx);
+                if (product == null)
+                {
+                    throw new Exception($"El producto con ID {item.ProductId} no existe.");
+                }
+                if (product.Stock < item.Qty)
+                {
+                    throw new Exception($"No hay stock suficiente para \"{product.Name}\". Stock actual: {product.Stock}, solicitado: {item.Qty}.");
+                }
+            }
+
             // Insertar venta
             const string sqlSale = @"
 INSERT INTO sales (sale_number, user_id, subtotal, discount, total, payment_method, note, created_utc, updated_utc)

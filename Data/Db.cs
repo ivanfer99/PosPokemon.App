@@ -22,6 +22,7 @@ public sealed class Db
     public void InitSchema()
     {
         var schemaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Schema.sqlite.sql");
+
         if (!File.Exists(schemaPath))
             throw new FileNotFoundException($"Schema file not found: {schemaPath}");
 

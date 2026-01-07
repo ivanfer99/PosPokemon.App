@@ -1,14 +1,15 @@
-﻿using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using PosPokemon.App.Models;
-using PosPokemon.App.Views;
-using PosPokemon.App.Repositories;
-using PosPokemon.App.Data;
+﻿using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.IO;
-using System.Text.Json;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using PosPokemon.App.Data;
+using PosPokemon.App.Models;
+using PosPokemon.App.Repositories;
+using PosPokemon.App.Views;
 
 namespace PosPokemon.App.ViewModels;
 
@@ -24,9 +25,11 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty] private int _lowStockItems = 0;
     [ObservableProperty] private decimal _salesThisMonth = 0;
 
-    // Para navegación
+    // Navegación (contenido central)
     [ObservableProperty] private UserControl? _currentView;
 
+    // DB y repos
+    private readonly Db _db;
     private readonly ProductRepository _productRepo;
     private readonly SaleRepository _saleRepo;
 
@@ -34,15 +37,21 @@ public partial class ShellViewModel : ObservableObject
     {
         CurrentUser = user;
 
-        // Inicializar repositorios
+        // Leer appsettings.json para ubicar la DB
         var settingsPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
         var json = File.ReadAllText(settingsPath);
         using var doc = JsonDocument.Parse(json);
-        var dbFile = doc.RootElement.GetProperty("Database").GetProperty("FileName").GetString() ?? "pospokemon.sqlite";
 
-        var db = new Db(dbFile);
-        _productRepo = new ProductRepository(db);
-        _saleRepo = new SaleRepository(db);
+        var dbFile = doc.RootElement
+            .GetProperty("Database")
+            .GetProperty("FileName")
+            .GetString() ?? "pospokemon.sqlite";
+
+        // ✅ Guardar Db como campo para reutilizarlo en Reportes/Settings/etc.
+        _db = new Db(dbFile);
+
+        _productRepo = new ProductRepository(_db);
+        _saleRepo = new SaleRepository(_db);
 
         LoadDashboardStats();
     }
@@ -60,19 +69,28 @@ public partial class ShellViewModel : ObservableObject
             SalesToday = await _saleRepo.GetTotalSalesByDateRangeAsync(todayStart, todayEnd);
 
             // Ventas del mes
-            var monthStart = new System.DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1).ToUniversalTime().ToString("O");
+            var monthStart = new System.DateTime(System.DateTime.Today.Year, System.DateTime.Today.Month, 1)
+                .ToUniversalTime().ToString("O");
+
             var monthEnd = System.DateTime.Today.AddDays(1).ToUniversalTime().ToString("O");
             SalesThisMonth = await _saleRepo.GetTotalSalesByDateRangeAsync(monthStart, monthEnd);
         }
-        catch { }
+        catch
+        {
+            // opcional: log
+        }
     }
+
+    // ======================
+    // NAVEGACIÓN
+    // ======================
 
     [RelayCommand]
     private void OpenSales()
     {
         var viewModel = new SalesViewModel(_productRepo, _saleRepo, CurrentUser);
 
-        // Suscribirse al evento de volver al dashboard
+        // volver al dashboard
         viewModel.BackToDashboardRequested += () => CurrentView = null;
 
         var view = new SalesView { DataContext = viewModel };
@@ -84,7 +102,7 @@ public partial class ShellViewModel : ObservableObject
     {
         var viewModel = new InventoryViewModel(_productRepo);
 
-        // Suscribirse al evento de volver al dashboard
+        // volver al dashboard
         viewModel.BackToDashboardRequested += () => CurrentView = null;
 
         var view = new InventoryView { DataContext = viewModel };
@@ -98,34 +116,76 @@ public partial class ShellViewModel : ObservableObject
 
         var viewModel = new HistoryViewModel(_saleRepo);
 
-        // Suscribirse al evento de volver al dashboard
+        // volver al dashboard
         viewModel.BackToDashboardRequested += () => CurrentView = null;
 
         var view = new HistoryView { DataContext = viewModel };
         CurrentView = view;
     }
 
+    // ✅ REPORTES (YA FUNCIONA)
     [RelayCommand]
-    private void OpenReports()
+    private async Task OpenReports()
     {
         if (!IsAdmin) return;
-        MessageBox.Show("Módulo de Reportes en desarrollo...", "Info");
+
+        var reportsRepo = new ReportsRepository(_db);
+        var viewModel = new ReportsViewModel(reportsRepo);
+
+        // volver al dashboard
+        viewModel.BackToDashboardRequested += () => CurrentView = null;
+
+        var view = new ReportsView { DataContext = viewModel };
+        CurrentView = view;
+
+        // Carga automática
+        try
+        {
+            await viewModel.LoadAsync();
+        }
+        catch (System.Exception ex)
+        {
+            MessageBox.Show("Error cargando reportes:\n" + ex.Message, "Error");
+        }
     }
 
     [RelayCommand]
-    private void OpenUsers()
+    private async Task OpenUsers()
     {
         if (!IsAdmin) return;
-        MessageBox.Show("Módulo de Usuarios en desarrollo...", "Info");
+
+        var userRepo = new UserRepository(_db);
+
+        var vm = new UsersViewModel(userRepo);
+        vm.BackToDashboardRequested += () => CurrentView = null;
+
+        var view = new UsersView { DataContext = vm };
+        CurrentView = view;
+
+        await vm.LoadAsync();
     }
+
 
     [RelayCommand]
-    private void OpenSettings()
+    private async Task OpenSettings()
     {
         if (!IsAdmin) return;
-        MessageBox.Show("Módulo de Configuración en desarrollo...", "Info");
+
+        var repo = new SettingsRepository(_db);
+        var vm = new SettingsViewModel(repo);
+
+        vm.BackToDashboardRequested += () => CurrentView = null;
+
+        var view = new SettingsView { DataContext = vm };
+        CurrentView = view;
+
+        await vm.LoadAsync();
     }
 
+
+    // ======================
+    // LOGOUT
+    // ======================
     [RelayCommand]
     private void Logout()
     {
@@ -138,13 +198,13 @@ public partial class ShellViewModel : ObservableObject
 
         if (result == MessageBoxResult.Yes)
         {
-            // Cerrar la ventana actual
+            // Cerrar Shell
             Application.Current.Windows
                 .OfType<ShellWindow>()
                 .FirstOrDefault()
                 ?.Close();
 
-            // Abrir LoginWindow
+            // Abrir Login
             var loginWindow = new LoginWindow();
             loginWindow.Show();
         }
