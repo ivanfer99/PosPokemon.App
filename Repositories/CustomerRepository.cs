@@ -206,7 +206,19 @@ LIMIT @limit;";
     {
         const string sql = @"
 SELECT 
-    s.*,
+    s.id,
+    s.sale_number,
+    s.user_id,
+    s.customer_id,
+    s.subtotal,
+    s.discount,
+    s.total,
+    s.payment_method,
+    s.amount_received,
+    s.change,
+    s.note,
+    s.created_utc,
+    s.updated_utc,
     u.username as SellerUsername
 FROM sales s
 LEFT JOIN users u ON s.user_id = u.id
@@ -214,26 +226,8 @@ WHERE s.customer_id = @customerId
 ORDER BY s.created_utc DESC;";
 
         using var conn = _db.OpenConnection();
-        var result = await conn.QueryAsync<dynamic>(sql, new { customerId });
-
-        return result.Select(s => new SaleWithDetails
-        {
-            Id = (long)s.Id,
-            SaleNumber = (string)s.SaleNumber,
-            UserId = (long)s.UserId,
-            SellerUsername = s.SellerUsername ?? "Desconocido",
-            CustomerId = s.CustomerId != null ? (long)s.CustomerId : (long?)null,
-            Subtotal = Convert.ToDecimal((double)s.Subtotal),
-            Discount = Convert.ToDecimal((double)s.Discount),
-            Total = Convert.ToDecimal((double)s.Total),
-            PaymentMethod = (string)s.PaymentMethod,
-            AmountReceived = Convert.ToDecimal((double)s.AmountReceived),
-            Change = Convert.ToDecimal((double)s.Change),
-            Note = s.Note,
-            CreatedUtc = (string)s.CreatedUtc,
-            UpdatedUtc = (string)s.UpdatedUtc,
-            Items = new List<SaleItemDetail>()
-        }).ToList();
+        var sales = await conn.QueryAsync<SaleWithDetails>(sql, new { customerId });
+        return sales.AsList();
     }
 
     /// <summary>

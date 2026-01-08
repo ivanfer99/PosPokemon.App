@@ -43,6 +43,9 @@ public partial class CustomersViewModel : ObservableObject
             Customers.Clear();
             foreach (var customer in customers)
             {
+                // ✅ DEBUG: Ver qué se está cargando
+                System.Diagnostics.Debug.WriteLine($"Cargando: {customer.Name} - DNI: '{customer.DocumentNumber}'");
+
                 Customers.Add(customer);
             }
 
@@ -97,6 +100,8 @@ public partial class CustomersViewModel : ObservableObject
                 }
 
                 await _customerRepo.CreateAsync(customer);
+
+                // ✅ CRÍTICO: Recargar la lista COMPLETA
                 await LoadAsync();
 
                 MessageBox.Show(
