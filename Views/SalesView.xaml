@@ -200,102 +200,94 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- ✅ NUEVO: Selector de Cliente -->
+                    <!-- ✅ SELECTOR DE CLIENTE - DISEÑO MEJORADO -->
                     <Border Grid.Row="0"
-                            Background="White"
-                            CornerRadius="8"
-                            Padding="15"
-                            Margin="0,0,0,15">
-                        <Border.Effect>
-                            <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
-                        </Border.Effect>
+        Background="#F5F5F5"
+        CornerRadius="8"
+        Padding="12"
+        Margin="0,0,0,15">
 
                         <StackPanel>
                             <TextBlock Text="👤 Cliente (Opcional)"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource PrimaryTextColor}"
-                                       Margin="0,0,0,10"/>
+                   FontSize="12"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource PrimaryTextColor}"
+                   Margin="0,0,0,8"/>
 
+                            <!-- Campo de búsqueda -->
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Campo de búsqueda -->
-                                <Border Grid.Column="0" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                                <!-- TextBox de búsqueda -->
+                                <Border Grid.Column="0" 
+                    BorderBrush="#E0E0E0" 
+                    BorderThickness="1" 
+                    CornerRadius="4"
+                    Background="White">
                                     <Grid>
                                         <TextBox x:Name="TxtCustomerSearch"
-                                                 Height="35"
-                                                 Padding="10,0"
-                                                 FontSize="12"
-                                                 VerticalContentAlignment="Center"
-                                                 Text="{Binding CustomerSearchText, UpdateSourceTrigger=PropertyChanged}">
+                             Height="36"
+                             Padding="10,0"
+                             FontSize="13"
+                             VerticalContentAlignment="Center"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             Text="{Binding CustomerSearchText, UpdateSourceTrigger=PropertyChanged}">
                                             <TextBox.InputBindings>
                                                 <KeyBinding Key="Enter" Command="{Binding SearchCustomersCommand}"/>
                                             </TextBox.InputBindings>
-                                            <TextBox.Style>
-                                                <Style TargetType="TextBox">
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="TextBox">
-                                                                <Grid Background="Transparent">
-                                                                    <TextBlock Text="🔍 Buscar cliente..."
-                                                                               Foreground="#BDBDBD"
-                                                                               FontSize="12"
-                                                                               VerticalAlignment="Center"
-                                                                               Margin="10,0"
-                                                                               IsHitTestVisible="False">
-                                                                        <TextBlock.Style>
-                                                                            <Style TargetType="TextBlock">
-                                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                                                <Style.Triggers>
-                                                                                    <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
-                                                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                                                    </DataTrigger>
-                                                                                </Style.Triggers>
-                                                                            </Style>
-                                                                        </TextBlock.Style>
-                                                                    </TextBlock>
-                                                                    <ScrollViewer x:Name="PART_ContentHost"
-                                                                                  Margin="10,0"
-                                                                                  VerticalAlignment="Center"/>
-                                                                </Grid>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Style>
-                                            </TextBox.Style>
                                         </TextBox>
 
-                                        <!-- Lista de resultados (autocompletado) -->
+                                        <!-- Placeholder -->
+                                        <TextBlock Text="🔍 Buscar cliente por nombre o DNI..."
+                               Foreground="#BDBDBD"
+                               FontSize="12"
+                               VerticalAlignment="Center"
+                               Margin="10,0"
+                               IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=TxtCustomerSearch, Path=Text}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <!-- Popup de resultados -->
                                         <Popup IsOpen="{Binding IsCustomerSearchVisible}"
-                                               PlacementTarget="{Binding ElementName=TxtCustomerSearch}"
-                                               Placement="Bottom"
-                                               StaysOpen="False"
-                                               AllowsTransparency="True">
+                           PlacementTarget="{Binding ElementName=TxtCustomerSearch}"
+                           Placement="Bottom"
+                           StaysOpen="False"
+                           AllowsTransparency="True"
+                           PopupAnimation="Slide">
                                             <Border Background="White"
-                                                    BorderBrush="#E0E0E0"
-                                                    BorderThickness="1"
-                                                    CornerRadius="4"
-                                                    MaxHeight="200"
-                                                    MinWidth="300">
+                                BorderBrush="#E0E0E0"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                MaxHeight="200"
+                                MinWidth="300">
                                                 <Border.Effect>
-                                                    <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="10" ShadowDepth="2"/>
+                                                    <DropShadowEffect Color="Black" Opacity="0.15" BlurRadius="10" ShadowDepth="2"/>
                                                 </Border.Effect>
                                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                                     <ItemsControl ItemsSource="{Binding CustomerSearchResults}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
                                                                 <Border Background="Transparent"
-                                                                        Padding="10"
-                                                                        Cursor="Hand">
+                                                    Padding="12,8"
+                                                    Cursor="Hand">
                                                                     <Border.InputBindings>
                                                                         <MouseBinding MouseAction="LeftClick"
-                                                                                      Command="{Binding DataContext.SelectCustomerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                                      CommandParameter="{Binding}"/>
+                                                                  Command="{Binding DataContext.SelectCustomerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                  CommandParameter="{Binding}"/>
                                                                     </Border.InputBindings>
                                                                     <Border.Style>
                                                                         <Style TargetType="Border">
@@ -307,11 +299,14 @@
                                                                         </Style>
                                                                     </Border.Style>
                                                                     <StackPanel>
-                                                                        <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold"/>
-                                                                        <TextBlock FontSize="10" Foreground="#757575">
-                                                                            <Run Text="{Binding DocumentType}"/>
-                                                                            <Run Text=":"/>
-                                                                            <Run Text="{Binding DocumentNumber}"/>
+                                                                        <TextBlock Text="{Binding Name}" 
+                                                               FontSize="13" 
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource PrimaryTextColor}"/>
+                                                                        <TextBlock FontSize="11" Foreground="#757575" Margin="0,2,0,0">
+                                                        <Run Text="{Binding DocumentType}"/>
+                                                        <Run Text=":"/>
+                                                        <Run Text="{Binding DocumentNumber}"/>
                                                                         </TextBlock>
                                                                     </StackPanel>
                                                                 </Border>
@@ -326,53 +321,75 @@
 
                                 <!-- Botón agregar cliente rápido -->
                                 <Button Grid.Column="2"
-                                        Content="➕"
-                                        Width="35"
-                                        Height="35"
-                                        FontSize="16"
-                                        FontWeight="Bold"
-                                        ToolTip="Nuevo Cliente"
-                                        Style="{StaticResource PrimaryButton}"
-                                        Command="{Binding QuickAddCustomerCommand}"/>
+                    Content="➕"
+                    Width="36"
+                    Height="36"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    ToolTip="Agregar nuevo cliente"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding QuickAddCustomerCommand}"/>
                             </Grid>
 
-                            <!-- Cliente seleccionado -->
-                            <Border Margin="0,8,0,0"
-                                    Padding="8"
-                                    Background="#E8F5E9"
-                                    CornerRadius="4"
-                                    Visibility="{Binding SelectedCustomer, Converter={StaticResource NullToVisibilityConverter}}">
+                            <!-- ✅ CARD DEL CLIENTE SELECCIONADO (MEJORADO) -->
+                            <Border Margin="0,10,0,0"
+                Padding="10"
+                Background="#E8F5E9"
+                CornerRadius="6"
+                BorderBrush="#81C784"
+                BorderThickness="1">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedCustomer}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+
                                 <Grid>
                                     <StackPanel>
-                                        <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="#2E7D32">
-                                            <Run Text="✓ Cliente:"/>
-                                            <Run Text="{Binding SelectedCustomer.Name}"/>
+                                        <TextBlock FontSize="11" 
+                               FontWeight="SemiBold" 
+                               Foreground="#2E7D32"
+                               Margin="0,0,0,4">
+                        <Run Text="✓ Cliente Seleccionado:"/>
                                         </TextBlock>
-                                        <TextBlock FontSize="10" Foreground="#2E7D32">
-                                            <Run Text="{Binding SelectedCustomer.DocumentType}"/>
-                                            <Run Text=":"/>
-                                            <Run Text="{Binding SelectedCustomer.DocumentNumber}"/>
+
+                                        <TextBlock FontSize="13" 
+                               FontWeight="Bold"
+                               Foreground="#1B5E20"
+                               Text="{Binding SelectedCustomer.Name}"
+                               Margin="0,0,0,2"/>
+
+                                        <TextBlock FontSize="11" Foreground="#2E7D32">
+                        <Run Text="{Binding SelectedCustomer.DocumentType}"/>
+                        <Run Text=":"/>
+                        <Run Text="{Binding SelectedCustomer.DocumentNumber}" FontWeight="SemiBold"/>
                                         </TextBlock>
                                     </StackPanel>
 
+                                    <!-- Botón quitar -->
                                     <Button Content="✕"
-                                            Width="20"
-                                            Height="20"
-                                            FontSize="10"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Top"
-                                            Background="#C62828"
-                                            Foreground="White"
-                                            BorderThickness="0"
-                                            Command="{Binding ClearCustomerCommand}"
-                                            ToolTip="Quitar cliente">
+                        Width="24"
+                        Height="24"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Background="#E53935"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Command="{Binding ClearCustomerCommand}"
+                        ToolTip="Quitar cliente">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="{TemplateBinding Background}"
-                                                                    CornerRadius="10">
+                                                CornerRadius="12">
                                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Border>
                                                         </ControlTemplate>
@@ -381,7 +398,7 @@
                                                 <Setter Property="Cursor" Value="Hand"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#B71C1C"/>
+                                                        <Setter Property="Background" Value="#C62828"/>
                                                     </Trigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -549,43 +566,42 @@
 
                     <!-- Resumen de Totales (MOVIDO a Row 3) -->
                     <Border Grid.Row="3"
-                            Background="#F8F9FA"
-                            CornerRadius="8"
-                            Padding="15"
-                            Margin="0,15,0,15">
-                        <!-- (TU BLOQUE DE TOTALES ENTERO SE QUEDA IGUAL AQUÍ) -->
-                        <!-- ↓↓↓ DEJO TU CONTENIDO ORIGINAL SIN CAMBIOS ↓↓↓ -->
+        Background="#F8F9FA"
+        CornerRadius="8"
+        Padding="15"
+        Margin="0,15,0,15">
 
                         <StackPanel>
                             <!-- Subtotal -->
-                            <Grid Margin="0,0,0,8">
+                            <Grid Margin="0,0,0,10">
                                 <TextBlock Text="Subtotal:"
-                                           Foreground="{StaticResource SecondaryTextColor}"
-                                           FontSize="13"/>
+                       Foreground="{StaticResource SecondaryTextColor}"
+                       FontSize="13"/>
                                 <TextBlock Text="{Binding Subtotal, StringFormat='S/ {0:N2}'}"
-                                           HorizontalAlignment="Right"
-                                           FontSize="13"
-                                           FontWeight="SemiBold"/>
+                       HorizontalAlignment="Right"
+                       FontSize="13"
+                       FontWeight="SemiBold"/>
                             </Grid>
 
-                            <!-- ✅ BOTÓN TOGGLE DESCUENTO MANUAL -->
+                            <!-- ✅ BOTÓN COLAPSABLE DE DESCUENTO -->
                             <Button x:Name="BtnToggleDiscount"
-                                    Content="Agregar Descuento"
-                                    Height="35"
-                                    FontSize="12"
-                                    Background="#9C27B0"
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    Cursor="Hand"
-                                    Margin="0,5,0,10"
-                                    Click="OnToggleDiscountPanel">
+                Content="➕ Aplicar Descuento"
+                Height="38"
+                FontSize="13"
+                FontWeight="SemiBold"
+                Margin="0,5,0,10"
+                Cursor="Hand"
+                Click="OnToggleDiscountPanel">
                                 <Button.Style>
                                     <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#9C27B0"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="6">
+                                        CornerRadius="6">
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                 </ControlTemplate>
@@ -602,70 +618,314 @@
 
                             <!-- ✅ PANEL COLAPSABLE DE DESCUENTO -->
                             <Border x:Name="DiscountPanel"
-                                    Visibility="Collapsed"
-                                    Background="#F3E5F5"
-                                    CornerRadius="8"
-                                    Padding="15"
-                                    Margin="0,0,0,10">
-                                <!-- (Contenido original del descuento) -->
-                                <!-- ... -->
+                Visibility="Collapsed"
+                Background="#F3E5F5"
+                BorderBrush="#9C27B0"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="15"
+                Margin="0,0,0,10">
+
+                                <StackPanel>
+                                    <TextBlock Text="💰 Descuento Manual"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="#6A1B9A"
+                           Margin="0,0,0,10"/>
+
+                                    <!-- Tipo de Descuento -->
+                                    <TextBlock Text="Tipo de Descuento:"
+                           FontSize="11"
+                           Foreground="{StaticResource SecondaryTextColor}"
+                           Margin="0,0,0,5"/>
+
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- ✅ Botón Porcentaje (CORREGIDO) -->
+                                        <RadioButton x:Name="RbPercentage"
+                                 Grid.Column="0"
+                                 Content="% Porcentaje"
+                                 GroupName="DiscountType"
+                                 IsChecked="False"
+                                 Checked="OnDiscountTypeChanged"
+                                 Height="36"
+                                 FontSize="12"
+                                 FontWeight="SemiBold"
+                                 HorizontalAlignment="Stretch"
+                                 HorizontalContentAlignment="Center"
+                                 Cursor="Hand">
+                                            <RadioButton.Template>
+                                                <ControlTemplate TargetType="RadioButton">
+                                                    <Border x:Name="border"
+                                        BorderThickness="2"
+                                        CornerRadius="6"
+                                        Padding="8"
+                                        Background="#E1BEE7"
+                                        BorderBrush="#9C27B0">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsChecked" Value="True">
+                                                            <Setter TargetName="border" Property="Background" Value="#9C27B0"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="border" Property="Background" Value="#CE93D8"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </RadioButton.Template>
+                                            <RadioButton.Style>
+                                                <Style TargetType="RadioButton">
+                                                    <Setter Property="Foreground" Value="#6A1B9A"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsChecked" Value="True">
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </RadioButton.Style>
+                                        </RadioButton>
+
+                                        <!-- ✅ Botón Monto Fijo (CORREGIDO) -->
+                                        <RadioButton x:Name="RbFixedAmount"
+                                 Grid.Column="2"
+                                 Content="S/ Monto Fijo"
+                                 GroupName="DiscountType"
+                                 IsChecked="True"
+                                 Checked="OnDiscountTypeChanged"
+                                 Height="36"
+                                 FontSize="12"
+                                 FontWeight="SemiBold"
+                                 HorizontalAlignment="Stretch"
+                                 HorizontalContentAlignment="Center"
+                                 Cursor="Hand">
+                                            <RadioButton.Template>
+                                                <ControlTemplate TargetType="RadioButton">
+                                                    <Border x:Name="border"
+                                        BorderThickness="2"
+                                        CornerRadius="6"
+                                        Padding="8"
+                                        Background="#E1BEE7"
+                                        BorderBrush="#9C27B0">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsChecked" Value="True">
+                                                            <Setter TargetName="border" Property="Background" Value="#9C27B0"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="border" Property="Background" Value="#CE93D8"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </RadioButton.Template>
+                                            <RadioButton.Style>
+                                                <Style TargetType="RadioButton">
+                                                    <Setter Property="Foreground" Value="#6A1B9A"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsChecked" Value="True">
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </RadioButton.Style>
+                                        </RadioButton>
+                                    </Grid>
+
+                                    <!-- Valor del Descuento -->
+                                    <TextBlock Text="Valor del Descuento:"
+                           FontSize="11"
+                           Foreground="{StaticResource SecondaryTextColor}"
+                           Margin="0,0,0,5"/>
+                                    <TextBox Height="38"
+                         Padding="12,0"
+                         FontSize="14"
+                         FontWeight="SemiBold"
+                         Text="{Binding DiscountValue, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,10"/>
+
+                                    <!-- Motivo del Descuento -->
+                                    <TextBlock Text="Motivo (Opcional):"
+                           FontSize="11"
+                           Foreground="{StaticResource SecondaryTextColor}"
+                           Margin="0,0,0,5"/>
+                                    <TextBox Height="32"
+                         Padding="10,0"
+                         FontSize="12"
+                         Text="{Binding DiscountNote, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,12"/>
+
+                                    <!-- Botones de Acción -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Button Grid.Column="0"
+                            Content="✓ Aplicar"
+                            Height="36"
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Command="{Binding ApplyDiscountCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="6">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="#388E3C"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+
+                                        <Button Grid.Column="2"
+                            Content="✕ Limpiar"
+                            Height="36"
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Command="{Binding ClearDiscountCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#757575"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="6">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="#616161"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </Grid>
+                                </StackPanel>
                             </Border>
 
                             <!-- Descuento Aplicado -->
-                            <Grid Margin="0,5,0,8">
+                            <Grid Margin="0,0,0,10">
                                 <TextBlock Text="Descuento:"
-                                           Foreground="{StaticResource SecondaryTextColor}"
-                                           FontSize="13"/>
+                       Foreground="{StaticResource SecondaryTextColor}"
+                       FontSize="13"/>
                                 <TextBlock Text="{Binding Discount, StringFormat='S/ {0:N2}'}"
-                                           HorizontalAlignment="Right"
-                                           FontSize="13"
-                                           Foreground="{StaticResource DangerTextColor}"
-                                           FontWeight="SemiBold"/>
+                       HorizontalAlignment="Right"
+                       FontSize="13"
+                       Foreground="{StaticResource DangerTextColor}"
+                       FontWeight="SemiBold"/>
                             </Grid>
 
                             <Separator Margin="0,8"/>
 
                             <!-- Total -->
-                            <Grid Margin="0,8,0,0">
+                            <Grid Margin="0,10,0,0">
                                 <TextBlock Text="TOTAL:"
-                                           FontSize="18"
-                                           FontWeight="Bold"
-                                           Foreground="{StaticResource PrimaryTextColor}"/>
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource PrimaryTextColor}"/>
                                 <TextBlock Text="{Binding Total, StringFormat='S/ {0:N2}'}"
-                                           HorizontalAlignment="Right"
-                                           FontSize="22"
-                                           FontWeight="Bold"
-                                           Foreground="{StaticResource SuccessTextColor}"/>
+                       HorizontalAlignment="Right"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource SuccessTextColor}"/>
                             </Grid>
                         </StackPanel>
                     </Border>
 
                     <!-- Botones de Acción (MOVIDO a Row 4) -->
-                    <StackPanel Grid.Row="4">
-                        <Button Content="💰 PROCESAR VENTA"
-                                Height="50"
-                                Margin="0,0,0,10"
-                                FontSize="15"
-                                FontWeight="Bold"
-                                Style="{StaticResource PrimaryButton}"
-                                Command="{Binding ProcessSaleCommand}"/>
+                    <Grid Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                        <Button Content="🗑️ Limpiar Carrito"
-                                Height="40"
-                                FontSize="13"
-                                Background="#E74C3C"
-                                Foreground="White"
-                                BorderThickness="0"
-                                Cursor="Hand"
-                                Command="{Binding ClearCartCommand}">
+                        <!-- Botón Principal: Procesar Venta -->
+                        <Button Grid.Column="0"
+            Content="💰Procesar Venta"
+            Height="55"
+            FontSize="14"
+            FontWeight="Bold"
+            Cursor="Hand"
+            Command="{Binding ProcessSaleCommand}">
                             <Button.Style>
                                 <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#1976D2" />
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}"
-                                                        CornerRadius="6"
-                                                        Padding="{TemplateBinding Padding}">
+                                    CornerRadius="8"
+                                    Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#1976D2"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Background" Value="#BDBDBD"/>
+                                            <Setter Property="Foreground" Value="#757575"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- Botón Secundario: Limpiar Carrito -->
+                        <Button Grid.Column="2"
+            Content="🗑️Limpiar Carrito"
+            Height="55"
+            FontSize="14"
+            FontWeight="SemiBold"
+            Cursor="Hand"
+            Command="{Binding ClearCartCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#E74C3C"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="8"
+                                    Padding="{TemplateBinding Padding}">
                                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                             </ControlTemplate>
@@ -679,7 +939,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                    </StackPanel>
+                    </Grid>
 
                 </Grid>
             </Border>

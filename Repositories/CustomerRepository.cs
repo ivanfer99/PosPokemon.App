@@ -39,7 +39,19 @@ SELECT last_insert_rowid();";
     public async Task<List<Customer>> GetAllActiveAsync()
     {
         const string sql = @"
-SELECT * FROM customers
+SELECT 
+    id as Id,
+    document_type as DocumentType,
+    document_number as DocumentNumber,
+    name as Name,
+    phone as Phone,
+    email as Email,
+    address as Address,
+    notes as Notes,
+    is_active as IsActive,
+    created_utc as CreatedUtc,
+    updated_utc as UpdatedUtc
+FROM customers
 WHERE is_active = 1
 ORDER BY name ASC;";
 
@@ -54,7 +66,19 @@ ORDER BY name ASC;";
     public async Task<List<Customer>> GetAllAsync()
     {
         const string sql = @"
-SELECT * FROM customers
+SELECT 
+    id as Id,
+    document_type as DocumentType,
+    document_number as DocumentNumber,
+    name as Name,
+    phone as Phone,
+    email as Email,
+    address as Address,
+    notes as Notes,
+    is_active as IsActive,
+    created_utc as CreatedUtc,
+    updated_utc as UpdatedUtc
+FROM customers
 ORDER BY name ASC;";
 
         using var conn = _db.OpenConnection();
@@ -71,7 +95,19 @@ ORDER BY name ASC;";
             return await GetAllActiveAsync();
 
         const string sql = @"
-SELECT * FROM customers
+SELECT 
+    id as Id,
+    document_type as DocumentType,
+    document_number as DocumentNumber,
+    name as Name,
+    phone as Phone,
+    email as Email,
+    address as Address,
+    notes as Notes,
+    is_active as IsActive,
+    created_utc as CreatedUtc,
+    updated_utc as UpdatedUtc
+FROM customers
 WHERE is_active = 1
   AND (name LIKE @query OR document_number LIKE @query)
 ORDER BY name ASC
@@ -87,7 +123,21 @@ LIMIT 20;";
     /// </summary>
     public async Task<Customer?> GetByIdAsync(long id)
     {
-        const string sql = "SELECT * FROM customers WHERE id = @id;";
+        const string sql = @"
+SELECT 
+    id as Id,
+    document_type as DocumentType,
+    document_number as DocumentNumber,
+    name as Name,
+    phone as Phone,
+    email as Email,
+    address as Address,
+    notes as Notes,
+    is_active as IsActive,
+    created_utc as CreatedUtc,
+    updated_utc as UpdatedUtc
+FROM customers 
+WHERE id = @id;";
 
         using var conn = _db.OpenConnection();
         return await conn.QueryFirstOrDefaultAsync<Customer>(sql, new { id });
@@ -98,7 +148,21 @@ LIMIT 20;";
     /// </summary>
     public async Task<Customer?> GetByDocumentAsync(string documentNumber)
     {
-        const string sql = "SELECT * FROM customers WHERE document_number = @documentNumber;";
+        const string sql = @"
+SELECT 
+    id as Id,
+    document_type as DocumentType,
+    document_number as DocumentNumber,
+    name as Name,
+    phone as Phone,
+    email as Email,
+    address as Address,
+    notes as Notes,
+    is_active as IsActive,
+    created_utc as CreatedUtc,
+    updated_utc as UpdatedUtc
+FROM customers 
+WHERE document_number = @documentNumber;";
 
         using var conn = _db.OpenConnection();
         return await conn.QueryFirstOrDefaultAsync<Customer>(sql, new { documentNumber });
@@ -163,7 +227,17 @@ WHERE id = @id;";
     {
         const string sql = @"
 SELECT 
-    c.*,
+    c.id as Id,
+    c.document_type as DocumentType,
+    c.document_number as DocumentNumber,
+    c.name as Name,
+    c.phone as Phone,
+    c.email as Email,
+    c.address as Address,
+    c.notes as Notes,
+    c.is_active as IsActive,
+    c.created_utc as CreatedUtc,
+    c.updated_utc as UpdatedUtc,
     COUNT(s.id) as TotalPurchases,
     COALESCE(SUM(s.total), 0) as TotalSpent,
     MAX(s.created_utc) as LastPurchaseDate
@@ -201,25 +275,26 @@ LIMIT @limit;";
 
     /// <summary>
     /// Obtener historial de compras de un cliente
+    /// ✅ CORREGIDO: Ahora mapea correctamente todas las columnas
     /// </summary>
     public async Task<List<SaleWithDetails>> GetCustomerPurchasesAsync(long customerId)
     {
         const string sql = @"
 SELECT 
-    s.id,
-    s.sale_number,
-    s.user_id,
-    s.customer_id,
-    s.subtotal,
-    s.discount,
-    s.total,
-    s.payment_method,
-    s.amount_received,
-    s.change,
-    s.note,
-    s.created_utc,
-    s.updated_utc,
-    u.username as SellerUsername
+    s.id as Id,
+    s.sale_number as SaleNumber,
+    s.user_id as UserId,
+    s.customer_id as CustomerId,
+    s.subtotal as Subtotal,
+    s.discount as Discount,
+    s.total as Total,
+    s.payment_method as PaymentMethod,
+    s.amount_received as AmountReceived,
+    s.change as Change,
+    s.note as Note,
+    s.created_utc as CreatedUtc,
+    s.updated_utc as UpdatedUtc,
+    u.username as Username
 FROM sales s
 LEFT JOIN users u ON s.user_id = u.id
 WHERE s.customer_id = @customerId

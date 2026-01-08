@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <None Remove="appsettings.json" />
+    <None Remove="V6_Add_Expansions_And_Product_Fields.sql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +18,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\Schema.sqlite.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="V6_Add_Expansions_And_Product_Fields.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

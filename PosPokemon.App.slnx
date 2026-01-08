@@ -1,3 +1,6 @@
 <Solution>
+  <Folder Name="/Migrations/">
+    <File Path="V6_Add_Expansions_And_Product_Fields.sql" />
+  </Folder>
   <Project Path="PosPokemon.App.csproj" />
 </Solution>
