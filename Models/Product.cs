@@ -16,13 +16,15 @@ public class Product
     public string? Finish { get; set; }
 
     public decimal Price { get; set; }
-    public decimal? SalePrice { get; set; }  // Precio de venta sugerido
+    public decimal? SalePrice { get; set; }
     public int Stock { get; set; }
     public int MinStock { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; } = true;
-    public DateTime CreatedUtc { get; set; }
-    public DateTime UpdatedUtc { get; set; }
+
+    // ✅ CAMBIAR A STRING (como Sale, Customer, etc.)
+    public string CreatedUtc { get; set; } = "";
+    public string UpdatedUtc { get; set; } = "";
 
     // Propiedades de navegación
     public string? CategoryName { get; set; }

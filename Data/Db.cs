@@ -206,6 +206,31 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
     /// <summary>
     /// Crea usuarios por defecto (admin y seller) si no existen
     /// </summary>
+
+
+    public void MigrateToV6()
+    {
+        using var conn = OpenConnection();
+
+        // Verificar si la tabla expansions existe
+        const string checkTable = @"
+        SELECT name FROM sqlite_master 
+        WHERE type='table' AND name='expansions';
+    ";
+
+        var exists = conn.ExecuteScalar<string>(checkTable);
+
+        if (exists == null)
+        {
+            var migrationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "V6_Add_Expansions_And_Product_Fields.sql");
+
+            if (File.Exists(migrationPath))
+            {
+                var sql = File.ReadAllText(migrationPath);
+                conn.Execute(sql);
+            }
+        }
+    }
     public async Task SeedAsync()
     {
         using var conn = OpenConnection();

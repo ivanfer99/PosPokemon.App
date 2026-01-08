@@ -29,6 +29,7 @@ namespace PosPokemon.App
                 db.MigrateToV3();
                 db.MigrateToV4(); // ✅ AGREGAR ESTA LÍNEA
                 db.MigrateToV5();
+                db.MigrateToV6();
                 await db.SeedAsync();
 
                 await EnsureAdminAsync(db);

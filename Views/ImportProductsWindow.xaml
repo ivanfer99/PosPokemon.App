@@ -1,0 +1,162 @@
+﻿<Window x:Class="PosPokemon.App.Views.ImportProductsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="📊 Importar Productos desde Excel" 
+        Height="700" 
+        Width="900"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource AppBackgroundColor}">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Título -->
+        <TextBlock Grid.Row="0" 
+                 Text="📊 Importar Productos desde Excel"
+                 FontSize="24" 
+                 FontWeight="Bold"
+                 Foreground="{StaticResource PrimaryTextColor}"
+                 Margin="0,0,0,20"/>
+
+        <!-- Instrucciones -->
+        <Border Grid.Row="1" 
+                Background="White" 
+                CornerRadius="8" 
+                Padding="20"
+                Margin="0,0,0,15">
+            <StackPanel>
+                <TextBlock Text="📝 Instrucciones:" 
+                         FontSize="16" 
+                         FontWeight="Bold"
+                         Margin="0,0,0,10"/>
+
+                <TextBlock TextWrapping="Wrap" Margin="0,0,0,5">
+                    <Run Text="1. Descarga la plantilla Excel haciendo clic en el botón de abajo"/>
+                </TextBlock>
+                <TextBlock TextWrapping="Wrap" Margin="0,0,0,5">
+                    <Run Text="2. Completa la plantilla con los datos de tus productos"/>
+                </TextBlock>
+                <TextBlock TextWrapping="Wrap" Margin="0,0,0,5">
+                    <Run Text="3. Las categorías y expansiones se crearán automáticamente si no existen"/>
+                </TextBlock>
+                <TextBlock TextWrapping="Wrap" Margin="0,0,0,5">
+                    <Run Text="4. Los productos duplicados (mismo código) serán omitidos"/>
+                </TextBlock>
+                <TextBlock TextWrapping="Wrap">
+                    <Run Text="5. Selecciona el archivo y haz clic en 'Importar Productos'"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <!-- Descargar Plantilla -->
+        <Border Grid.Row="2" 
+                Background="White" 
+                CornerRadius="8" 
+                Padding="15"
+                Margin="0,0,0,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="📥 Plantilla Excel" 
+                             FontSize="14" 
+                             FontWeight="SemiBold"/>
+                    <TextBlock Text="Descarga la plantilla con el formato correcto" 
+                             FontSize="12" 
+                             Foreground="#757575"/>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                      Content="📥 Descargar Plantilla"
+                      Width="180"
+                      Height="40"
+                      Style="{StaticResource PrimaryButton}"
+                      Click="OnDownloadTemplate"/>
+            </Grid>
+        </Border>
+
+        <!-- Seleccionar Archivo -->
+        <Border Grid.Row="3" 
+                Background="White" 
+                CornerRadius="8" 
+                Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" 
+                         Text="📂 Archivo Seleccionado:" 
+                         FontSize="14" 
+                         FontWeight="SemiBold"
+                         Margin="0,0,0,10"/>
+
+                <Grid Grid.Row="1" Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="TxtFilePath"
+                           Grid.Column="0"
+                           Height="40"
+                           Padding="12,0"
+                           IsReadOnly="True"
+                           VerticalContentAlignment="Center"/>
+
+                    <Button Grid.Column="2"
+                          Content="📁 Seleccionar Archivo"
+                          Width="160"
+                          Height="40"
+                          Style="{StaticResource PrimaryButton}"
+                          Click="OnSelectFile"/>
+                </Grid>
+
+                <!-- Resultados -->
+                <Border Grid.Row="2" 
+                      BorderBrush="#E0E0E0" 
+                      BorderThickness="1" 
+                      CornerRadius="4"
+                      Padding="10">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBlock x:Name="TxtResults"
+                                 TextWrapping="Wrap"
+                                 FontFamily="Consolas"
+                                 FontSize="12"/>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Botones -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Cerrar"
+                  Width="120"
+                  Height="45"
+                  Margin="0,0,10,0"
+                  Background="#95A5A6"
+                  Foreground="White"
+                  BorderThickness="0"
+                  Click="OnClose"/>
+
+            <Button x:Name="BtnImport"
+                  Content="📤 Importar Productos"
+                  Width="180"
+                  Height="45"
+                  Style="{StaticResource PrimaryButton}"
+                  Click="OnImport"/>
+        </StackPanel>
+    </Grid>
+</Window>
