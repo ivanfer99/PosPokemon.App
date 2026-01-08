@@ -12,6 +12,10 @@ public sealed class SaleTicket
     public string Time { get; set; } = "";
     public string Cashier { get; set; } = "";
 
+    // ✅ NUEVO: Información del cliente
+    public string? CustomerName { get; set; }
+    public string? CustomerDocument { get; set; }
+
     public List<SaleTicketItem> Items { get; set; } = new();
 
     public decimal Subtotal { get; set; }

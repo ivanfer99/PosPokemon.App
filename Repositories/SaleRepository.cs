@@ -41,10 +41,36 @@ public sealed class SaleRepository
                 }
             }
 
-            // Insertar venta
+            // ✅ INSERTAR VENTA CON CUSTOMER_ID
             const string sqlSale = @"
-INSERT INTO sales (sale_number, user_id, subtotal, discount, total, payment_method, amount_received, change, note, created_utc, updated_utc)
-VALUES (@SaleNumber, @UserId, @Subtotal, @Discount, @Total, @PaymentMethod, @AmountReceived, @Change, @Note, @CreatedUtc, @UpdatedUtc);
+INSERT INTO sales (
+    sale_number, 
+    user_id, 
+    customer_id,
+    subtotal, 
+    discount, 
+    total, 
+    payment_method, 
+    amount_received, 
+    change, 
+    note, 
+    created_utc, 
+    updated_utc
+)
+VALUES (
+    @SaleNumber, 
+    @UserId, 
+    @CustomerId,
+    @Subtotal, 
+    @Discount, 
+    @Total, 
+    @PaymentMethod, 
+    @AmountReceived, 
+    @Change, 
+    @Note, 
+    @CreatedUtc, 
+    @UpdatedUtc
+);
 SELECT last_insert_rowid();";
 
             var saleId = await conn.ExecuteScalarAsync<long>(sqlSale, sale, tx);
@@ -92,6 +118,7 @@ SELECT
     s.id as Id,
     s.sale_number as SaleNumber,
     s.user_id as UserId,
+    s.customer_id as CustomerId,
     s.subtotal as Subtotal,
     s.discount as Discount,
     s.total as Total,
@@ -139,6 +166,7 @@ SELECT
     s.id as Id,
     s.sale_number as SaleNumber,
     s.user_id as UserId,
+    s.customer_id as CustomerId,
     s.subtotal as Subtotal,
     s.discount as Discount,
     s.total as Total,
@@ -204,16 +232,17 @@ ORDER BY si.id;";
 
     /// <summary>
     /// Obtiene toda la información de una venta para generar el ticket
-    /// ✅ CORREGIDO: Conversión explícita de double a decimal
+    /// ✅ INCLUYE CUSTOMER_ID
     /// </summary>
     public async Task<SaleTicket?> GetSaleTicketAsync(long saleId)
     {
         using var conn = _db.OpenConnection();
 
-        // Obtener información de la venta
+        // Obtener información de la venta con datos del cliente
         const string saleSql = @"
 SELECT 
     s.sale_number as SaleNumber,
+    s.customer_id as CustomerId,
     s.subtotal as Subtotal,
     s.discount as Discount,
     s.total as Total,
@@ -222,9 +251,13 @@ SELECT
     s.change as Change,
     s.note as Note,
     s.created_utc as CreatedUtc,
-    u.username as Cashier
+    u.username as Cashier,
+    c.name as CustomerName,
+    c.document_type as CustomerDocumentType,
+    c.document_number as CustomerDocumentNumber
 FROM sales s
 LEFT JOIN users u ON s.user_id = u.id
+LEFT JOIN customers c ON s.customer_id = c.id
 WHERE s.id = @saleId;";
 
         var saleData = await conn.QueryFirstOrDefaultAsync<dynamic>(saleSql, new { saleId });
@@ -263,6 +296,10 @@ WHERE si.sale_id = @saleId;";
             Date = createdDate.ToString("dd/MM/yyyy"),
             Time = createdDate.ToString("HH:mm:ss"),
             Cashier = (string)saleData.Cashier ?? "Sistema",
+
+            // ✅ NUEVO: Datos del cliente (si existe)
+            CustomerName = saleData.CustomerName as string,
+            CustomerDocument = saleData.CustomerDocumentNumber as string,
 
             Items = items,
 
