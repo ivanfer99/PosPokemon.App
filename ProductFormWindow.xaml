@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Producto" 
-        Height="650" 
+        Height="750" 
         Width="550"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
+        ResizeMode="CanResize"
         Background="{StaticResource AppBackgroundColor}">
 
     <Border Margin="20" 
@@ -34,15 +34,15 @@
             <!-- Formulario -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
-                    <!-- SKU -->
-                    <TextBlock Text="SKU *" 
+                    <!-- Código -->
+                    <TextBlock Text="Código (SKU) *" 
                              Foreground="{StaticResource SecondaryTextColor}"
                              FontSize="12"
                              Margin="0,0,0,5"/>
                     <TextBox Height="40"
                            Padding="12,0"
                            FontSize="14"
-                           Text="{Binding Sku, UpdateSourceTrigger=PropertyChanged}"
+                           Text="{Binding Code, UpdateSourceTrigger=PropertyChanged}"
                            Margin="0,0,0,15"/>
 
                     <!-- Nombre -->
@@ -56,68 +56,66 @@
                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                            Margin="0,0,0,15"/>
 
-                    <!-- Categoría y TCG -->
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Categoría *" 
-                                     Foreground="{StaticResource SecondaryTextColor}"
-                                     FontSize="12"
-                                     Margin="0,0,0,5"/>
-                            <ComboBox Height="40"
-                                    Padding="12,0"
-                                    FontSize="14"
-                                    SelectedValue="{Binding Category}"
-                                    SelectedValuePath="Content">
-                                <ComboBoxItem Content="Single"/>
-                                <ComboBoxItem Content="Sealed"/>
-                                <ComboBoxItem Content="Accesorio"/>
-                            </ComboBox>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="TCG *" 
-                                     Foreground="{StaticResource SecondaryTextColor}"
-                                     FontSize="12"
-                                     Margin="0,0,0,5"/>
-                            <ComboBox Height="40"
-                                    Padding="12,0"
-                                    FontSize="14"
-                                    SelectedValue="{Binding Tcg}"
-                                    SelectedValuePath="Content">
-                                <ComboBoxItem Content="Pokemon"/>
-                                <ComboBoxItem Content="Yu-Gi-Oh"/>
-                                <ComboBoxItem Content="Magic"/>
-                                <ComboBoxItem Content="Otro"/>
-                            </ComboBox>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Set -->
-                    <TextBlock Text="Set / Expansión" 
+                    <!-- Categoría (NOTA: Aquí deberías usar un ComboBox con categorías reales) -->
+                    <TextBlock Text="ID de Categoría * (Temporal)" 
                              Foreground="{StaticResource SecondaryTextColor}"
                              FontSize="12"
                              Margin="0,0,0,5"/>
                     <TextBox Height="40"
                            Padding="12,0"
                            FontSize="14"
-                           Text="{Binding SetName, UpdateSourceTrigger=PropertyChanged}"
+                           Text="{Binding CategoryId, UpdateSourceTrigger=PropertyChanged}"
                            Margin="0,0,0,15"/>
 
-                    <!-- Rareza e Idioma -->
+                    <!-- Módulo -->
+                    <TextBlock Text="Módulo" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Text="{Binding Module, UpdateSourceTrigger=PropertyChanged}"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Promo/Especial -->
+                    <CheckBox Content="Es Promo/Especial"
+                            IsChecked="{Binding IsPromoSpecial}"
+                            Margin="0,0,0,15"/>
+
+                    <!-- Expansión (NOTA: Aquí deberías usar un ComboBox con expansiones reales) -->
+                    <TextBlock Text="ID de Expansión (Opcional)" 
+                             Foreground="{StaticResource SecondaryTextColor}"
+                             FontSize="12"
+                             Margin="0,0,0,5"/>
+                    <TextBox Height="40"
+                           Padding="12,0"
+                           FontSize="14"
+                           Text="{Binding ExpansionId, UpdateSourceTrigger=PropertyChanged}"
+                           Margin="0,0,0,15"/>
+
+                    <!-- Idioma, Rareza, Acabado -->
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
+                            <TextBlock Text="Idioma" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <TextBox Height="40"
+                                   Padding="12,0"
+                                   FontSize="14"
+                                   Text="{Binding Language, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
                             <TextBlock Text="Rareza" 
                                      Foreground="{StaticResource SecondaryTextColor}"
                                      FontSize="12"
@@ -128,24 +126,19 @@
                                    Text="{Binding Rarity, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Idioma" 
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Acabado" 
                                      Foreground="{StaticResource SecondaryTextColor}"
                                      FontSize="12"
                                      Margin="0,0,0,5"/>
-                            <ComboBox Height="40"
-                                    Padding="12,0"
-                                    FontSize="14"
-                                    SelectedValue="{Binding Language}"
-                                    SelectedValuePath="Content">
-                                <ComboBoxItem Content="ES"/>
-                                <ComboBoxItem Content="EN"/>
-                                <ComboBoxItem Content="JP"/>
-                            </ComboBox>
+                            <TextBox Height="40"
+                                   Padding="12,0"
+                                   FontSize="14"
+                                   Text="{Binding Finish, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </Grid>
 
-                    <!-- Costo y Precio -->
+                    <!-- Precio y Precio de Venta -->
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -154,18 +147,7 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Costo (S/) *" 
-                                     Foreground="{StaticResource SecondaryTextColor}"
-                                     FontSize="12"
-                                     Margin="0,0,0,5"/>
-                            <TextBox Height="40"
-                                   Padding="12,0"
-                                   FontSize="14"
-                                   Text="{Binding Cost, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Precio Venta (S/) *" 
+                            <TextBlock Text="Precio (S/) *" 
                                      Foreground="{StaticResource SecondaryTextColor}"
                                      FontSize="12"
                                      Margin="0,0,0,5"/>
@@ -174,17 +156,62 @@
                                    FontSize="14"
                                    Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Precio Venta (S/)" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <TextBox Height="40"
+                                   Padding="12,0"
+                                   FontSize="14"
+                                   Text="{Binding SalePrice, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
                     </Grid>
 
-                    <!-- Stock -->
-                    <TextBlock Text="Stock Inicial *" 
+                    <!-- Stock y Stock Mínimo -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Stock *" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <TextBox Height="40"
+                                   Padding="12,0"
+                                   FontSize="14"
+                                   Text="{Binding Stock, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Stock Mínimo" 
+                                     Foreground="{StaticResource SecondaryTextColor}"
+                                     FontSize="12"
+                                     Margin="0,0,0,5"/>
+                            <TextBox Height="40"
+                                   Padding="12,0"
+                                   FontSize="14"
+                                   Text="{Binding MinStock, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Descripción -->
+                    <TextBlock Text="Descripción" 
                              Foreground="{StaticResource SecondaryTextColor}"
                              FontSize="12"
                              Margin="0,0,0,5"/>
-                    <TextBox Height="40"
-                           Padding="12,0"
+                    <TextBox Height="80"
+                           Padding="12,8"
                            FontSize="14"
-                           Text="{Binding Stock, UpdateSourceTrigger=PropertyChanged}"
+                           TextWrapping="Wrap"
+                           AcceptsReturn="True"
+                           VerticalScrollBarVisibility="Auto"
+                           Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                            Margin="0,0,0,15"/>
                 </StackPanel>
             </ScrollViewer>

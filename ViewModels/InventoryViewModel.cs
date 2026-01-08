@@ -127,21 +127,26 @@ public partial class InventoryViewModel : ObservableObject
     {
         var details = $@"📦 DETALLES DEL PRODUCTO
 
-SKU: {product.Sku}
+Código: {product.Code}
 Nombre: {product.Name}
-Categoría: {product.Category}
-TCG: {product.Tcg}
-Set: {product.SetName ?? "N/A"}
-Rareza: {product.Rarity ?? "N/A"}
+Categoría ID: {product.CategoryId}
+Módulo: {product.Module ?? "N/A"}
+Promo/Especial: {(product.IsPromoSpecial ? "Sí" : "No")}
+Expansión ID: {product.ExpansionId?.ToString() ?? "N/A"}
 Idioma: {product.Language ?? "N/A"}
+Rareza: {product.Rarity ?? "N/A"}
+Acabado: {product.Finish ?? "N/A"}
 
-💰 PRECIO
-Costo: S/ {product.Cost:N2}
-Precio Venta: S/ {product.Price:N2}
-Margen: S/ {(product.Price - product.Cost):N2}
+💰 PRECIOS
+Precio: S/ {product.Price:N2}
+Precio Venta: {(product.SalePrice.HasValue ? $"S/ {product.SalePrice.Value:N2}" : "N/A")}
 
 📊 STOCK
 Cantidad: {product.Stock} unidades
+Stock Mínimo: {product.MinStock}
+
+📝 DESCRIPCIÓN
+{product.Description ?? "Sin descripción"}
 
 📅 FECHAS
 Creado: {product.CreatedUtc}
@@ -160,7 +165,7 @@ Actualizado: {product.UpdatedUtc}";
     {
         var result = MessageBox.Show(
             $"¿Estás seguro de eliminar el producto?\n\n" +
-            $"SKU: {product.Sku}\n" +
+            $"Código: {product.Code}\n" +
             $"Nombre: {product.Name}\n\n" +
             $"Esta acción no se puede deshacer.",
             "Confirmar Eliminación",

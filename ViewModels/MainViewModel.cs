@@ -38,8 +38,8 @@ public partial class MainViewModel : ObservableObject
     private async Task SeedExampleAsync()
     {
         // Crea un producto demo si no existe
-        var sku = "PKM-001";
-        var existing = await _products.GetBySkuAsync(sku);
+        var code = "PKM-001";
+        var existing = await _products.GetBySkuAsync(code);
         if (existing != null)
         {
             MessageBox.Show("Ya existe PKM-001");
@@ -48,16 +48,21 @@ public partial class MainViewModel : ObservableObject
 
         await _products.CreateAsync(new Models.Product
         {
-            Sku = sku,
-            Name = "Pikachu - Single",
-            Category = "Single",
-            Tcg = "Pokemon",
-            SetName = "Stellar Crown",
+            Code = code,
+            Name = "Pikachu - Illustration Rare",
+            CategoryId = 1, // ⚠️ Asegúrate de que esta categoría exista
+            Module = "Base",
+            IsPromoSpecial = false,
+            ExpansionId = null,
+            Language = "Español",
             Rarity = "Illustration Rare",
-            Language = "ES",
-            Cost = 5,
-            Price = 15,
-            Stock = 3
+            Finish = "Holo",
+            Price = 15.00m,
+            SalePrice = null,
+            Stock = 3,
+            MinStock = 1,
+            Description = "Carta promocional de Pikachu con arte especial",
+            IsActive = true
         });
 
         MessageBox.Show("Producto demo creado.");

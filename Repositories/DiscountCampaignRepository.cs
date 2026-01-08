@@ -128,21 +128,29 @@ WHERE dcp.campaign_id = @campaignId;";
     /// <summary>
     /// Verificar si un producto tiene descuento activo
     /// </summary>
+    /// <summary>
+    /// Verificar si un producto tiene descuento activo
+    /// </summary>
     public async Task<ProductWithDiscount> GetProductWithDiscountAsync(long productId)
     {
         const string sql = @"
 SELECT 
     p.id as Id,
-    p.sku as Sku,
+    p.code as Code,
     p.name as Name,
-    p.category as Category,
-    p.tcg as Tcg,
-    p.set_name as SetName,
-    p.rarity as Rarity,
+    p.category_id as CategoryId,
+    p.module as Module,
+    p.is_promo_special as IsPromoSpecial,
+    p.expansion_id as ExpansionId,
     p.language as Language,
-    p.cost as Cost,
+    p.rarity as Rarity,
+    p.finish as Finish,
     p.price as Price,
+    p.sale_price as SalePrice,
     p.stock as Stock,
+    p.min_stock as MinStock,
+    p.description as Description,
+    p.is_active as IsActive,
     p.created_utc as CreatedUtc,
     p.updated_utc as UpdatedUtc,
     dc.name as CampaignName,
@@ -169,16 +177,21 @@ LIMIT 1;";
             var product = new Product
             {
                 Id = (long)result.Id,
-                Sku = (string)result.Sku ?? "",
+                Code = (string)result.Code ?? "",
                 Name = (string)result.Name ?? "",
-                Category = (string)result.Category ?? "",
-                Tcg = (string)result.Tcg ?? "",
-                SetName = result.SetName != null ? (string)result.SetName : "",
-                Rarity = result.Rarity != null ? (string)result.Rarity : "",
-                Language = result.Language != null ? (string)result.Language : "",
-                Cost = Convert.ToDecimal((double)result.Cost),
+                CategoryId = (long)result.CategoryId,
+                Module = result.Module as string,
+                IsPromoSpecial = Convert.ToBoolean((long)result.IsPromoSpecial),
+                ExpansionId = result.ExpansionId as long?,
+                Language = result.Language as string,
+                Rarity = result.Rarity as string,
+                Finish = result.Finish as string,
                 Price = Convert.ToDecimal((double)result.Price),
-                Stock = (long)result.Stock,
+                SalePrice = result.SalePrice != null ? Convert.ToDecimal((double)result.SalePrice) : null,
+                Stock = (int)(long)result.Stock,
+                MinStock = (int)(long)result.MinStock,
+                Description = result.Description as string,
+                IsActive = Convert.ToBoolean((long)result.IsActive),
                 CreatedUtc = (string)result.CreatedUtc ?? "",
                 UpdatedUtc = (string)result.UpdatedUtc ?? ""
             };

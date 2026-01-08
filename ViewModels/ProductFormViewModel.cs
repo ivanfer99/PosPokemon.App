@@ -5,16 +5,21 @@ namespace PosPokemon.App.ViewModels;
 
 public partial class ProductFormViewModel : ObservableObject
 {
-    [ObservableProperty] private string _sku = "";
+    // ✅ PROPIEDADES ACTUALIZADAS PARA EL NUEVO MODELO
+    [ObservableProperty] private string _code = "";
     [ObservableProperty] private string _name = "";
-    [ObservableProperty] private string _category = "Single";
-    [ObservableProperty] private string _tcg = "Pokemon";
-    [ObservableProperty] private string? _setName;
+    [ObservableProperty] private long _categoryId = 0;
+    [ObservableProperty] private string? _module;
+    [ObservableProperty] private bool _isPromoSpecial;
+    [ObservableProperty] private long? _expansionId;
+    [ObservableProperty] private string? _language;
     [ObservableProperty] private string? _rarity;
-    [ObservableProperty] private string _language = "ES";
-    [ObservableProperty] private decimal _cost;
+    [ObservableProperty] private string? _finish;
     [ObservableProperty] private decimal _price;
-    [ObservableProperty] private long _stock;
+    [ObservableProperty] private decimal _salePrice;
+    [ObservableProperty] private int _stock;
+    [ObservableProperty] private int _minStock;
+    [ObservableProperty] private string? _description;
 
     public string Title { get; }
     public Product? ExistingProduct { get; }
@@ -26,16 +31,20 @@ public partial class ProductFormViewModel : ObservableObject
 
         if (product != null)
         {
-            Sku = product.Sku;
+            Code = product.Code;
             Name = product.Name;
-            Category = product.Category;
-            Tcg = product.Tcg;
-            SetName = product.SetName;
+            CategoryId = product.CategoryId;
+            Module = product.Module;
+            IsPromoSpecial = product.IsPromoSpecial;
+            ExpansionId = product.ExpansionId;
+            Language = product.Language;
             Rarity = product.Rarity;
-            Language = product.Language ?? "ES";
-            Cost = product.Cost;
+            Finish = product.Finish;
             Price = product.Price;
+            SalePrice = product.SalePrice ?? 0;
             Stock = product.Stock;
+            MinStock = product.MinStock;
+            Description = product.Description;
         }
     }
 }

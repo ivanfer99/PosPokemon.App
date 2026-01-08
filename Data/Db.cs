@@ -210,27 +210,219 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
 
     public void MigrateToV6()
     {
-        using var conn = OpenConnection();
+        var currentVersion = GetDatabaseVersion();
+        if (currentVersion >= 6) return;
 
-        // Verificar si la tabla expansions existe
-        const string checkTable = @"
-        SELECT name FROM sqlite_master 
-        WHERE type='table' AND name='expansions';
-    ";
+        using var cnn = OpenConnection();  // ✅ CAMBIO: GetConnection() → OpenConnection()
+        cnn.Open();
+        using var txn = cnn.BeginTransaction();
 
-        var exists = conn.ExecuteScalar<string>(checkTable);
-
-        if (exists == null)
+        try
         {
-            var migrationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "V6_Add_Expansions_And_Product_Fields.sql");
+            // 1. Crear tabla de expansiones (si no existe)
+            cnn.Execute(@"
+            CREATE TABLE IF NOT EXISTS expansions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                code TEXT,
+                release_date TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                created_utc TEXT NOT NULL,
+                updated_utc TEXT NOT NULL
+            );
+        ", transaction: txn);
 
-            if (File.Exists(migrationPath))
+            // 2. Crear tabla de categorías (si no existe)
+            cnn.Execute(@"
+            CREATE TABLE IF NOT EXISTS categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                description TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                created_utc TEXT NOT NULL,
+                updated_utc TEXT NOT NULL
+            );
+        ", transaction: txn);
+
+            // 3. Verificar si la tabla products ya tiene la nueva estructura
+            var columns = cnn.Query<string>(
+                "SELECT name FROM pragma_table_info('products')",
+                transaction: txn
+            ).ToList();
+
+            bool needsRestructure = !columns.Contains("code") ||
+                                    !columns.Contains("category_id") ||
+                                    !columns.Contains("module");
+
+            if (needsRestructure)
             {
-                var sql = File.ReadAllText(migrationPath);
-                conn.Execute(sql);
+                // 3a. Renombrar tabla antigua
+                cnn.Execute("ALTER TABLE products RENAME TO products_old;", transaction: txn);
+
+                // 3b. Crear nueva tabla products
+                cnn.Execute(@"
+                CREATE TABLE products (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    code TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    category_id INTEGER NOT NULL,
+                    module TEXT,
+                    is_promo_special INTEGER NOT NULL DEFAULT 0,
+                    expansion_id INTEGER,
+                    language TEXT,
+                    rarity TEXT,
+                    finish TEXT,
+                    price REAL NOT NULL,
+                    sale_price REAL,
+                    stock INTEGER NOT NULL DEFAULT 0,
+                    min_stock INTEGER NOT NULL DEFAULT 0,
+                    description TEXT,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    created_utc TEXT NOT NULL,
+                    updated_utc TEXT NOT NULL,
+                    FOREIGN KEY (category_id) REFERENCES categories(id),
+                    FOREIGN KEY (expansion_id) REFERENCES expansions(id)
+                );
+            ", transaction: txn);
+
+                // 3c. Verificar si products_old tiene datos
+                var oldCount = cnn.ExecuteScalar<int>(
+                    "SELECT COUNT(*) FROM products_old",
+                    transaction: txn
+                );
+
+                if (oldCount > 0)
+                {
+                    // 3d. Insertar categoría por defecto si no existe
+                    cnn.Execute(@"
+                    INSERT OR IGNORE INTO categories (id, name, description, is_active, created_utc, updated_utc)
+                    VALUES (1, 'General', 'Categoría por defecto', 1, datetime('now'), datetime('now'));
+                ", transaction: txn);
+
+                    // 3e. Migrar datos antiguos
+                    var oldColumns = cnn.Query<string>(
+                        "SELECT name FROM pragma_table_info('products_old')",
+                        transaction: txn
+                    ).ToList();
+
+                    // Determinar qué columnas usar de la tabla antigua
+                    string skuColumn = oldColumns.Contains("sku") ? "sku" :
+                                       oldColumns.Contains("code") ? "code" : "'LEGACY-' || id";
+
+                    cnn.Execute($@"
+                    INSERT INTO products (
+                        code, name, category_id, price, stock, 
+                        description, is_active, created_utc, updated_utc
+                    )
+                    SELECT 
+                        {skuColumn} as code,
+                        name,
+                        1 as category_id,
+                        price,
+                        stock,
+                        {(oldColumns.Contains("description") ? "description" : "NULL")} as description,
+                        1 as is_active,
+                        {(oldColumns.Contains("created_utc") ? "created_utc" : "datetime('now')")} as created_utc,
+                        {(oldColumns.Contains("updated_utc") ? "updated_utc" : "datetime('now')")} as updated_utc
+                    FROM products_old;
+                ", transaction: txn);
+                }
+
+                // 3f. Eliminar tabla antigua
+                cnn.Execute("DROP TABLE IF EXISTS products_old;", transaction: txn);
             }
+
+            // 4. Crear índices
+            cnn.Execute(@"
+            CREATE INDEX IF NOT EXISTS idx_products_code ON products(code);
+            CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
+            CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+            CREATE INDEX IF NOT EXISTS idx_products_expansion ON products(expansion_id);
+            CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active);
+            
+            CREATE INDEX IF NOT EXISTS idx_expansions_name ON expansions(name);
+            CREATE INDEX IF NOT EXISTS idx_expansions_active ON expansions(is_active);
+            
+            CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name);
+            CREATE INDEX IF NOT EXISTS idx_categories_active ON categories(is_active);
+        ", transaction: txn);
+
+            // 5. Insertar categorías por defecto
+            cnn.Execute(@"
+            INSERT OR IGNORE INTO categories (name, description, is_active, created_utc, updated_utc)
+            VALUES 
+                ('Single', 'Cartas individuales', 1, datetime('now'), datetime('now')),
+                ('Sealed', 'Productos sellados (sobres, cajas)', 1, datetime('now'), datetime('now')),
+                ('Accesorio', 'Accesorios (fundas, carpetas, dados)', 1, datetime('now'), datetime('now'));
+        ", transaction: txn);
+
+            // 6. Actualizar versión
+            SetDatabaseVersion(6);
+
+            txn.Commit();
+        }
+        catch (Exception ex)
+        {
+            txn.Rollback();
+            throw new Exception($"Error en migración V6: {ex.Message}", ex);
         }
     }
+    // ========================================
+    // MÉTODOS DE CONTROL DE VERSIÓN
+    // ========================================
+
+    /// <summary>
+    /// Obtiene la versión actual de la base de datos
+    /// </summary>
+    private int GetDatabaseVersion()
+    {
+        using var cnn = OpenConnection();  // ✅ CAMBIO: GetConnection() → OpenConnection()
+        cnn.Open();
+
+        // Crear tabla de versiones si no existe
+        cnn.Execute(@"
+        CREATE TABLE IF NOT EXISTS database_version (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            version INTEGER NOT NULL,
+            updated_utc TEXT NOT NULL
+        );
+    ");
+
+        // Obtener versión actual
+        var version = cnn.QueryFirstOrDefault<int?>(
+            "SELECT version FROM database_version WHERE id = 1"
+        );
+
+        // Si no existe registro, insertar versión 0
+        if (version == null)
+        {
+            cnn.Execute(@"
+            INSERT INTO database_version (id, version, updated_utc)
+            VALUES (1, 0, datetime('now'));
+        ");
+            return 0;
+        }
+
+        return version.Value;
+    }
+
+    /// <summary>
+    /// Establece la versión actual de la base de datos
+    /// </summary>
+    /// <summary>
+    /// Establece la versión actual de la base de datos
+    /// </summary>
+    private void SetDatabaseVersion(int version)
+    {
+        using var cnn = OpenConnection();  // ✅ CAMBIO: GetConnection() → OpenConnection()
+        cnn.Open();
+
+        cnn.Execute(@"
+        INSERT OR REPLACE INTO database_version (id, version, updated_utc)
+        VALUES (1, @Version, datetime('now'));
+    ", new { Version = version });
+    }
+
     public async Task SeedAsync()
     {
         using var conn = OpenConnection();

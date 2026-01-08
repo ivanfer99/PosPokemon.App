@@ -18,23 +18,27 @@ public partial class ProductFormWindow : Window
         _vm = new ProductFormViewModel(product);
         DataContext = _vm;
 
-        // Si tu XAML usa {Binding Title} para mostrar título dentro del formulario,
-        // mantenemos el Title del Window también:
         this.Title = product == null ? "➕ Nuevo Producto" : "✏️ Editar Producto";
     }
 
     private void OnSaveClick(object sender, RoutedEventArgs e)
     {
-        // Validaciones (ahora validamos el VM)
-        if (string.IsNullOrWhiteSpace(_vm.Sku))
+        // ✅ VALIDACIONES ACTUALIZADAS
+        if (string.IsNullOrWhiteSpace(_vm.Code))
         {
-            MessageBox.Show("El SKU es obligatorio.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("El código es obligatorio.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
         if (string.IsNullOrWhiteSpace(_vm.Name))
         {
             MessageBox.Show("El nombre es obligatorio.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (_vm.CategoryId <= 0)
+        {
+            MessageBox.Show("Debes seleccionar una categoría.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -50,21 +54,24 @@ public partial class ProductFormWindow : Window
             return;
         }
 
-        // Crear o actualizar producto
+        // ✅ CREAR O ACTUALIZAR PRODUCTO (ESTRUCTURA ACTUALIZADA)
         var product = _vm.ExistingProduct ?? new Product();
 
-        product.Sku = _vm.Sku.Trim();
+        product.Code = _vm.Code.Trim();
         product.Name = _vm.Name.Trim();
-        product.Category = _vm.Category;
-        product.Tcg = _vm.Tcg;
-
-        product.SetName = string.IsNullOrWhiteSpace(_vm.SetName) ? null : _vm.SetName.Trim();
+        product.CategoryId = _vm.CategoryId;
+        product.Module = string.IsNullOrWhiteSpace(_vm.Module) ? null : _vm.Module.Trim();
+        product.IsPromoSpecial = _vm.IsPromoSpecial;
+        product.ExpansionId = _vm.ExpansionId;
+        product.Language = string.IsNullOrWhiteSpace(_vm.Language) ? null : _vm.Language.Trim();
         product.Rarity = string.IsNullOrWhiteSpace(_vm.Rarity) ? null : _vm.Rarity.Trim();
-
-        product.Language = _vm.Language;
-        product.Cost = _vm.Cost;
+        product.Finish = string.IsNullOrWhiteSpace(_vm.Finish) ? null : _vm.Finish.Trim();
         product.Price = _vm.Price;
+        product.SalePrice = _vm.SalePrice > 0 ? _vm.SalePrice : null;
         product.Stock = _vm.Stock;
+        product.MinStock = _vm.MinStock;
+        product.Description = string.IsNullOrWhiteSpace(_vm.Description) ? null : _vm.Description.Trim();
+        product.IsActive = true;
 
         ProductSaved?.Invoke(product);
         Close();
