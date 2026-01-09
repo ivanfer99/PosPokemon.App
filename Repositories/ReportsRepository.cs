@@ -8,6 +8,7 @@ namespace PosPokemon.App.Repositories;
 public sealed class ReportsRepository
 {
     private readonly Db _db;
+
     public ReportsRepository(Db db) => _db = db;
 
     // RESUMEN GENERAL
@@ -49,7 +50,7 @@ ORDER BY Total DESC;
     {
         const string sql = @"
 SELECT
-  p.sku AS Sku,
+  p.code AS Code,
   p.name AS Name,
   SUM(si.qty) AS Qty,
   SUM(si.qty * si.unit_price) AS Total
@@ -57,7 +58,7 @@ FROM sale_items si
 JOIN sales s ON s.id = si.sale_id
 JOIN products p ON p.id = si.product_id
 WHERE s.created_utc >= @fromUtc AND s.created_utc < @toUtc
-GROUP BY p.sku, p.name
+GROUP BY p.code, p.name
 ORDER BY Total DESC
 LIMIT 20;
 ";
@@ -84,7 +85,7 @@ public sealed class SalesByUserRow
 
 public sealed class TopProductRow
 {
-    public string Sku { get; set; } = "";
+    public string Code { get; set; } = "";  // ✅ CAMBIADO: Sku → Code
     public string Name { get; set; } = "";
     public int Qty { get; set; }
     public decimal Total { get; set; }

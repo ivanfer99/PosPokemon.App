@@ -145,23 +145,23 @@
 
         <!-- DataGrid de Productos -->
         <Border Grid.Row="3" 
-                Background="White" 
-                CornerRadius="12" 
-                Padding="0">
+        Background="White" 
+        CornerRadius="12" 
+        Padding="0">
             <Border.Effect>
                 <DropShadowEffect Color="{StaticResource ShadowColor}" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
             </Border.Effect>
 
             <DataGrid ItemsSource="{Binding Products}"
-                    AutoGenerateColumns="False"
-                    CanUserAddRows="False"
-                    IsReadOnly="True"
-                    SelectionMode="Single"
-                    HeadersVisibility="Column"
-                    GridLinesVisibility="None"
-                    BorderThickness="0"
-                    RowHeight="55"
-                    FontSize="13">
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            IsReadOnly="True"
+            SelectionMode="Single"
+            HeadersVisibility="Column"
+            GridLinesVisibility="None"
+            BorderThickness="0"
+            RowHeight="55"
+            FontSize="13">
 
                 <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">
@@ -191,7 +191,7 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="DataGridCell">
                                     <Border Background="{TemplateBinding Background}"
-                                          Padding="{TemplateBinding Padding}">
+                                  Padding="{TemplateBinding Padding}">
                                         <ContentPresenter VerticalAlignment="Center"/>
                                     </Border>
                                 </ControlTemplate>
@@ -207,8 +207,8 @@
                 </DataGrid.Resources>
 
                 <DataGrid.Columns>
-                    <!-- SKU -->
-                    <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="130">
+                    <!-- Código (SKU) -->
+                    <DataGridTextColumn Header="Código" Binding="{Binding Code}" Width="120">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontFamily" Value="Consolas"/>
@@ -219,7 +219,7 @@
                     </DataGridTextColumn>
 
                     <!-- Nombre -->
-                    <DataGridTextColumn Header="Nombre del Producto" Binding="{Binding Name}" Width="*" MinWidth="200">
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="*" MinWidth="200">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontWeight" Value="SemiBold"/>
@@ -229,13 +229,13 @@
                     </DataGridTextColumn>
 
                     <!-- Categoría -->
-                    <DataGridTextColumn Header="Categoría" Binding="{Binding Category}" Width="110"/>
+                    <DataGridTextColumn Header="Categoría" Binding="{Binding CategoryName}" Width="110"/>
 
-                    <!-- TCG -->
-                    <DataGridTextColumn Header="TCG" Binding="{Binding Tcg}" Width="100"/>
+                    <!-- Módulo -->
+                    <DataGridTextColumn Header="Módulo" Binding="{Binding Module}" Width="90"/>
 
-                    <!-- Set -->
-                    <DataGridTextColumn Header="Set" Binding="{Binding SetName}" Width="150">
+                    <!-- Expansión -->
+                    <DataGridTextColumn Header="Expansión" Binding="{Binding ExpansionName}" Width="180">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="FontStyle" Value="Italic"/>
@@ -245,10 +245,13 @@
                     </DataGridTextColumn>
 
                     <!-- Rareza -->
-                    <DataGridTextColumn Header="Rareza" Binding="{Binding Rarity}" Width="140"/>
+                    <DataGridTextColumn Header="Rareza" Binding="{Binding Rarity}" Width="120"/>
 
                     <!-- Idioma -->
                     <DataGridTextColumn Header="Idioma" Binding="{Binding Language}" Width="80"/>
+
+                    <!-- Acabado -->
+                    <DataGridTextColumn Header="Acabado" Binding="{Binding Finish}" Width="90"/>
 
                     <!-- Precio -->
                     <DataGridTextColumn Header="Precio" Binding="{Binding Price, StringFormat='S/ {0:N2}'}" Width="100">
@@ -265,8 +268,8 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Stock}" 
-                                         FontWeight="Bold"
-                                         HorizontalAlignment="Center">
+                                 FontWeight="Bold"
+                                 HorizontalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="{StaticResource SuccessTextColor}"/>
@@ -289,33 +292,33 @@
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <!-- Botón Editar -->
                                     <Button Content="✏️"
-                                          Width="35"
-                                          Height="35"
-                                          Margin="0,0,5,0"
-                                          ToolTip="Editar"
-                                          Style="{StaticResource PrimaryButton}"
-                                          Command="{Binding DataContext.OpenEditProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                          CommandParameter="{Binding}"/>
+                                  Width="35"
+                                  Height="35"
+                                  Margin="0,0,5,0"
+                                  ToolTip="Editar"
+                                  Style="{StaticResource PrimaryButton}"
+                                  Command="{Binding DataContext.OpenEditProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"/>
 
                                     <!-- Botón Ver -->
                                     <Button Content="👁️"
-                                          Width="35"
-                                          Height="35"
-                                          Margin="0,0,5,0"
-                                          ToolTip="Ver detalles"
-                                          Background="{StaticResource CardReportsColor}"
-                                          Foreground="White"
-                                          BorderThickness="0"
-                                          Cursor="Hand"
-                                          Command="{Binding DataContext.ViewProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                          CommandParameter="{Binding}">
+                                  Width="35"
+                                  Height="35"
+                                  Margin="0,0,5,0"
+                                  ToolTip="Ver detalles"
+                                  Background="{StaticResource CardReportsColor}"
+                                  Foreground="White"
+                                  BorderThickness="0"
+                                  Cursor="Hand"
+                                  Command="{Binding DataContext.ViewProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="{TemplateBinding Background}"
-                                                                  CornerRadius="6">
+                                                          CornerRadius="6">
                                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Border>
                                                         </ControlTemplate>
@@ -332,22 +335,22 @@
 
                                     <!-- Botón Eliminar -->
                                     <Button Content="🗑️"
-                                          Width="35"
-                                          Height="35"
-                                          ToolTip="Eliminar"
-                                          Background="{StaticResource DangerTextColor}"
-                                          Foreground="White"
-                                          BorderThickness="0"
-                                          Cursor="Hand"
-                                          Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                          CommandParameter="{Binding}">
+                                  Width="35"
+                                  Height="35"
+                                  ToolTip="Eliminar"
+                                  Background="{StaticResource DangerTextColor}"
+                                  Foreground="White"
+                                  BorderThickness="0"
+                                  Cursor="Hand"
+                                  Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border Background="{TemplateBinding Background}"
-                                                                  CornerRadius="6">
+                                                          CornerRadius="6">
                                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Border>
                                                         </ControlTemplate>

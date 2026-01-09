@@ -13,22 +13,54 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 --------------------------------------------------
--- PRODUCTS
+-- CATEGORIES (✅ NUEVA TABLA)
+--------------------------------------------------
+CREATE TABLE IF NOT EXISTS categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  description TEXT,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  created_utc TEXT NOT NULL,
+  updated_utc TEXT NOT NULL
+);
+
+--------------------------------------------------
+-- EXPANSIONS (✅ NUEVA TABLA)
+--------------------------------------------------
+CREATE TABLE IF NOT EXISTS expansions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  code TEXT,
+  release_date TEXT,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  created_utc TEXT NOT NULL,
+  updated_utc TEXT NOT NULL
+);
+
+--------------------------------------------------
+-- PRODUCTS (✅ ESTRUCTURA ACTUALIZADA V6)
 --------------------------------------------------
 CREATE TABLE IF NOT EXISTS products (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  sku TEXT NOT NULL UNIQUE,
+  code TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
-  category TEXT NOT NULL,
-  tcg TEXT NOT NULL,
-  set_name TEXT,
-  rarity TEXT,
+  category_id INTEGER NOT NULL,
+  module TEXT,
+  is_promo_special INTEGER NOT NULL DEFAULT 0,
+  expansion_id INTEGER,
   language TEXT,
-  cost REAL NOT NULL DEFAULT 0,
-  price REAL NOT NULL DEFAULT 0,
+  rarity TEXT,
+  finish TEXT,
+  price REAL NOT NULL,
+  sale_price REAL,
   stock INTEGER NOT NULL DEFAULT 0,
+  min_stock INTEGER NOT NULL DEFAULT 0,
+  description TEXT,
+  is_active INTEGER NOT NULL DEFAULT 1,
   created_utc TEXT NOT NULL,
-  updated_utc TEXT NOT NULL
+  updated_utc TEXT NOT NULL,
+  FOREIGN KEY (category_id) REFERENCES categories(id),
+  FOREIGN KEY (expansion_id) REFERENCES expansions(id)
 );
 
 --------------------------------------------------
@@ -36,7 +68,7 @@ CREATE TABLE IF NOT EXISTS products (
 --------------------------------------------------
 CREATE TABLE IF NOT EXISTS customers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  document_type TEXT NOT NULL DEFAULT 'DNI',  -- DNI, RUC, CE, PASSPORT
+  document_type TEXT NOT NULL DEFAULT 'DNI',
   document_number TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   phone TEXT,
@@ -88,7 +120,7 @@ CREATE TABLE IF NOT EXISTS sale_items (
 CREATE TABLE IF NOT EXISTS stock_movements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   product_id INTEGER NOT NULL,
-  type TEXT NOT NULL,              -- IN / OUT / ADJUST
+  type TEXT NOT NULL,
   qty INTEGER NOT NULL,
   reason TEXT,
   created_utc TEXT NOT NULL,
@@ -121,7 +153,7 @@ CREATE TABLE IF NOT EXISTS discount_campaigns (
 );
 
 --------------------------------------------------
--- DISCOUNT CAMPAIGN PRODUCTS (PRODUCTOS EN DESCUENTO)
+-- DISCOUNT CAMPAIGN PRODUCTS
 --------------------------------------------------
 CREATE TABLE IF NOT EXISTS discount_campaign_products (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -133,11 +165,31 @@ CREATE TABLE IF NOT EXISTS discount_campaign_products (
 );
 
 --------------------------------------------------
+-- DATABASE VERSION (✅ NUEVA TABLA)
+--------------------------------------------------
+CREATE TABLE IF NOT EXISTS database_version (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  version INTEGER NOT NULL,
+  updated_utc TEXT NOT NULL
+);
+
+--------------------------------------------------
 -- INDEXES (PERFORMANCE)
 --------------------------------------------------
 -- Products
+CREATE INDEX IF NOT EXISTS idx_products_code ON products(code);
 CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
-CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
+CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_expansion ON products(expansion_id);
+CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active);
+
+-- Categories
+CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name);
+CREATE INDEX IF NOT EXISTS idx_categories_active ON categories(is_active);
+
+-- Expansions
+CREATE INDEX IF NOT EXISTS idx_expansions_name ON expansions(name);
+CREATE INDEX IF NOT EXISTS idx_expansions_active ON expansions(is_active);
 
 -- Customers
 CREATE INDEX IF NOT EXISTS idx_customers_document ON customers(document_number);
@@ -166,19 +218,23 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_campaign ON discount_c
 CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_campaign_products(product_id);
 
 --------------------------------------------------
--- CONFIGURACIONES DE TIENDA (SEED INICIAL)
+-- SEED DATA
 --------------------------------------------------
-INSERT OR IGNORE INTO app_settings (key, value, updated_utc) VALUES 
-('store.name', 'POS POKÉMON TCG', datetime('now'));
+-- Categorías por defecto
+INSERT OR IGNORE INTO categories (name, description, is_active, created_utc, updated_utc)
+VALUES 
+  ('Single', 'Cartas individuales', 1, datetime('now'), datetime('now')),
+  ('Sealed', 'Productos sellados (sobres, cajas)', 1, datetime('now'), datetime('now')),
+  ('Accesorio', 'Accesorios (fundas, carpetas, dados)', 1, datetime('now'), datetime('now'));
 
+-- Configuraciones de tienda
 INSERT OR IGNORE INTO app_settings (key, value, updated_utc) VALUES 
-('store.address', 'Lima, Perú', datetime('now'));
+  ('store.name', 'POS POKÉMON TCG', datetime('now')),
+  ('store.address', 'Lima, Perú', datetime('now')),
+  ('store.phone', '', datetime('now')),
+  ('store.ruc', '', datetime('now')),
+  ('store.logo_path', '', datetime('now'));
 
-INSERT OR IGNORE INTO app_settings (key, value, updated_utc) VALUES 
-('store.phone', '', datetime('now'));
-
-INSERT OR IGNORE INTO app_settings (key, value, updated_utc) VALUES 
-('store.ruc', '', datetime('now'));
-
-INSERT OR IGNORE INTO app_settings (key, value, updated_utc) VALUES 
-('store.logo_path', '', datetime('now'));
+-- Versión inicial de la base de datos
+INSERT OR IGNORE INTO database_version (id, version, updated_utc)
+VALUES (1, 6, datetime('now'));

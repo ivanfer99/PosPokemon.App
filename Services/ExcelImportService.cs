@@ -197,19 +197,21 @@ public class ExcelImportService
                 var dto = new ProductImportDto
                 {
                     RowNumber = rowNumber,
-                    Code = row.Cell(1).GetString(),
-                    Name = row.Cell(2).GetString(),
-                    Module = row.Cell(3).GetString(),
-                    Category = row.Cell(4).GetString(),
-                    PromoSpecial = row.Cell(5).GetString(),
-                    Expansion = row.Cell(6).GetString(),
-                    Language = row.Cell(7).GetString(),
-                    Rarity = row.Cell(8).GetString(),
-                    Finish = row.Cell(9).GetString(),
-                    Price = ParseDecimal(row.Cell(10).GetString()),
-                    SalePrice = ParseDecimal(row.Cell(11).GetString()),
-                    Stock = ParseInt(row.Cell(12).GetString()),
-                    Description = row.Cell(13).GetString()
+
+                    // ✅ CORREGIDO: Leer por ÍNDICE de columna (A=1, B=2, C=3...)
+                    Code = GetCellValue(row, 1),              // Columna A
+                    Name = GetCellValue(row, 2),              // Columna B
+                    Module = GetCellValue(row, 3),            // Columna C
+                    Category = GetCellValue(row, 4),          // Columna D
+                    PromoSpecial = GetCellValue(row, 5),      // Columna E
+                    Expansion = GetCellValue(row, 6),         // Columna F
+                    Language = GetCellValue(row, 7),          // Columna G
+                    Rarity = GetCellValue(row, 8),            // Columna H
+                    Finish = GetCellValue(row, 9),            // Columna I
+                    Price = ParseDecimal(GetCellValue(row, 10)),        // Columna J
+                    SalePrice = ParseDecimal(GetCellValue(row, 11)),    // Columna K
+                    Stock = ParseInt(GetCellValue(row, 12)),            // Columna L
+                    Description = GetCellValue(row, 13)       // Columna M
                 };
 
                 products.Add(dto);
@@ -229,6 +231,23 @@ public class ExcelImportService
         }
 
         return products;
+    }
+
+    // ✅ NUEVO: Método helper para leer celdas de forma segura
+    private string GetCellValue(IXLRow row, int columnIndex)
+    {
+        try
+        {
+            var cell = row.Cell(columnIndex);
+            if (cell == null || cell.IsEmpty())
+                return string.Empty;
+
+            return cell.GetString().Trim();
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
 
     /// <summary>

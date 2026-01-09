@@ -1,12 +1,8 @@
 ﻿using Dapper;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Math;
 using Microsoft.Data.Sqlite;
 using PosPokemon.App.Services;
 using System;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,11 +26,11 @@ public sealed class Db
     /// </summary>
     public void InitSchema()
     {
-        var schemaPath = System.IO.Path.Combine(
-        AppDomain.CurrentDomain.BaseDirectory,
-        "Data",
-        "Schema.sqlite.sql"
-    );
+        var schemaPath = IOPath.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "Data",
+            "Schema.sqlite.sql"
+        );
 
         if (!File.Exists(schemaPath))
             throw new FileNotFoundException($"Schema file not found: {schemaPath}");
@@ -47,13 +43,11 @@ public sealed class Db
 
     /// <summary>
     /// Migración V2: Agrega columnas amount_received y change a la tabla sales.
-    /// Es seguro ejecutar múltiples veces - solo aplica cambios si no existen.
     /// </summary>
     public void MigrateToV2()
     {
         using var conn = OpenConnection();
 
-        // Verificar si las columnas ya existen
         const string sql = "PRAGMA table_info(sales);";
         var columns = conn.Query<dynamic>(sql)
                           .Select(x => (string)x.name)
@@ -61,11 +55,8 @@ public sealed class Db
 
         if (!columns.Contains("amount_received"))
         {
-            // Agregar nuevas columnas
             conn.Execute("ALTER TABLE sales ADD COLUMN amount_received REAL NOT NULL DEFAULT 0;");
             conn.Execute("ALTER TABLE sales ADD COLUMN change REAL NOT NULL DEFAULT 0;");
-
-            // Actualizar ventas existentes: amount_received = total (sin vuelto)
             conn.Execute("UPDATE sales SET amount_received = total, change = 0;");
         }
     }
@@ -74,7 +65,6 @@ public sealed class Db
     {
         using var conn = OpenConnection();
 
-        // Verificar si las configuraciones ya existen
         const string checkSql = "SELECT COUNT(*) FROM app_settings WHERE key = 'store.name';";
         var exists = conn.ExecuteScalar<int>(checkSql);
 
@@ -86,7 +76,6 @@ public sealed class Db
 INSERT INTO app_settings (key, value, updated_utc) 
 VALUES (@Key, @Value, @UpdatedUtc);";
 
-            // Insertar configuraciones por defecto
             conn.Execute(insertSql, new { Key = "store.name", Value = "POS POKÉMON TCG", UpdatedUtc = now });
             conn.Execute(insertSql, new { Key = "store.address", Value = "Lima, Perú", UpdatedUtc = now });
             conn.Execute(insertSql, new { Key = "store.phone", Value = "", UpdatedUtc = now });
@@ -99,7 +88,6 @@ VALUES (@Key, @Value, @UpdatedUtc);";
     {
         using var conn = OpenConnection();
 
-        // Verificar si las tablas ya existen
         const string checkSql = @"
 SELECT COUNT(*) 
 FROM sqlite_master 
@@ -143,13 +131,11 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
 
     /// <summary>
     /// Migración V5: Agrega tabla de clientes y relación con ventas.
-    /// Es seguro ejecutar múltiples veces.
     /// </summary>
     public void MigrateToV5()
     {
-        using var conn = OpenConnection();  // ✅ CAMBIO: GetConnection() → OpenConnection()
+        using var conn = OpenConnection();
 
-        // Verificar si la tabla customers existe
         const string checkCustomersTable = @"
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name='customers';
@@ -159,7 +145,6 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
 
         if (!customersExists)
         {
-            // Crear tabla customers
             const string createCustomers = @"
             CREATE TABLE customers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -177,7 +162,6 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
         ";
             conn.Execute(createCustomers);
 
-            // Crear índices
             const string createIndexes = @"
             CREATE INDEX idx_customers_document ON customers(document_number);
             CREATE INDEX idx_customers_name ON customers(name);
@@ -186,7 +170,6 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
             conn.Execute(createIndexes);
         }
 
-        // Verificar si la columna customer_id existe en sales
         const string checkColumn = @"
         SELECT COUNT(*) 
         FROM pragma_table_info('sales') 
@@ -197,14 +180,12 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
 
         if (!columnExists)
         {
-            // Agregar columna customer_id a sales
             const string addColumn = @"
             ALTER TABLE sales 
             ADD COLUMN customer_id INTEGER;
         ";
             conn.Execute(addColumn);
 
-            // Crear índice
             const string createIndex = @"
             CREATE INDEX idx_sales_customer ON sales(customer_id);
         ";
@@ -213,23 +194,22 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
     }
 
     /// <summary>
-    /// Crea usuarios por defecto (admin y seller) si no existen
+    /// Migración V6: Nueva estructura de productos con categorías y expansiones
+    /// ✅ CORREGIDO: Usa la misma conexión y transacción
     /// </summary>
-
-
     public void MigrateToV6()
     {
         var currentVersion = GetDatabaseVersion();
         if (currentVersion >= 6) return;
 
         using var cnn = OpenConnection();
-        cnn.Open();  // ✅ NECESARIO: Abrir antes de BeginTransaction()
+        cnn.Open();
 
         using var txn = cnn.BeginTransaction();
 
         try
         {
-            // 1. Crear tabla de expansiones (si no existe)
+            // 1. Crear tabla de expansiones
             cnn.Execute(@"
             CREATE TABLE IF NOT EXISTS expansions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -242,7 +222,7 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
             );
         ", transaction: txn);
 
-            // 2. Crear tabla de categorías (si no existe)
+            // 2. Crear tabla de categorías
             cnn.Execute(@"
             CREATE TABLE IF NOT EXISTS categories (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -254,7 +234,7 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
             );
         ", transaction: txn);
 
-            // 3. Verificar si la tabla products ya tiene la nueva estructura
+            // 3. Verificar estructura de products
             var columns = cnn.Query<string>(
                 "SELECT name FROM pragma_table_info('products')",
                 transaction: txn
@@ -266,10 +246,8 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
 
             if (needsRestructure)
             {
-                // 3a. Renombrar tabla antigua
                 cnn.Execute("ALTER TABLE products RENAME TO products_old;", transaction: txn);
 
-                // 3b. Crear nueva tabla products
                 cnn.Execute(@"
                 CREATE TABLE products (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -295,7 +273,6 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
                 );
             ", transaction: txn);
 
-                // 3c. Verificar si products_old tiene datos
                 var oldCount = cnn.ExecuteScalar<int>(
                     "SELECT COUNT(*) FROM products_old",
                     transaction: txn
@@ -303,19 +280,16 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
 
                 if (oldCount > 0)
                 {
-                    // 3d. Insertar categoría por defecto si no existe
                     cnn.Execute(@"
                     INSERT OR IGNORE INTO categories (id, name, description, is_active, created_utc, updated_utc)
                     VALUES (1, 'General', 'Categoría por defecto', 1, datetime('now'), datetime('now'));
                 ", transaction: txn);
 
-                    // 3e. Migrar datos antiguos
                     var oldColumns = cnn.Query<string>(
                         "SELECT name FROM pragma_table_info('products_old')",
                         transaction: txn
                     ).ToList();
 
-                    // Determinar qué columnas usar de la tabla antigua
                     string skuColumn = oldColumns.Contains("sku") ? "sku" :
                                        oldColumns.Contains("code") ? "code" : "'LEGACY-' || id";
 
@@ -338,7 +312,6 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
                 ", transaction: txn);
                 }
 
-                // 3f. Eliminar tabla antigua
                 cnn.Execute("DROP TABLE IF EXISTS products_old;", transaction: txn);
             }
 
@@ -366,8 +339,8 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
                 ('Accesorio', 'Accesorios (fundas, carpetas, dados)', 1, datetime('now'), datetime('now'));
         ", transaction: txn);
 
-            // 6. Actualizar versión
-            SetDatabaseVersion(6);
+            // ✅ 6. ACTUALIZAR VERSIÓN DENTRO DE LA TRANSACCIÓN
+            SetDatabaseVersion(6, cnn, txn);
 
             txn.Commit();
         }
@@ -377,15 +350,14 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
             throw new Exception($"Error en migración V6: {ex.Message}", ex);
         }
     }
+
     /// <summary>
     /// Obtiene la versión actual de la base de datos
     /// </summary>
     private int GetDatabaseVersion()
     {
         using var cnn = OpenConnection();
-        // ❌ ELIMINAR: cnn.Open();  // NO es necesario, OpenConnection() ya lo hace
 
-        // Crear tabla de versiones si no existe
         cnn.Execute(@"
         CREATE TABLE IF NOT EXISTS database_version (
             id INTEGER PRIMARY KEY CHECK (id = 1),
@@ -394,12 +366,10 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
         );
     ");
 
-        // Obtener versión actual
         var version = cnn.QueryFirstOrDefault<int?>(
             "SELECT version FROM database_version WHERE id = 1"
         );
 
-        // Si no existe registro, insertar versión 0
         if (version == null)
         {
             cnn.Execute(@"
@@ -413,23 +383,20 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
     }
 
     /// <summary>
-    /// Establece la versión actual de la base de datos
+    /// Establece la versión de la base de datos
+    /// ✅ VERSIÓN CORREGIDA: Acepta conexión y transacción
     /// </summary>
-
-    /// <summary>
-    /// Establece la versión actual de la base de datos
-    /// </summary>
-    private void SetDatabaseVersion(int version)
+    private void SetDatabaseVersion(int version, IDbConnection cnn, IDbTransaction txn)
     {
-        using var cnn = OpenConnection();
-        // ❌ ELIMINAR: cnn.Open();  // NO es necesario, OpenConnection() ya lo hace
-
         cnn.Execute(@"
         INSERT OR REPLACE INTO database_version (id, version, updated_utc)
         VALUES (1, @Version, datetime('now'));
-    ", new { Version = version });
+    ", new { Version = version }, transaction: txn);
     }
 
+    /// <summary>
+    /// Crea usuarios por defecto
+    /// </summary>
     public async Task SeedAsync()
     {
         using var conn = OpenConnection();

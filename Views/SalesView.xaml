@@ -159,7 +159,7 @@
                             </DataGrid.Resources>
 
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="120"/>
+                                <DataGridTextColumn Header="Código" Binding="{Binding Code}" Width="120"/>
                                 <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="*"/>
                                 <DataGridTextColumn Header="Precio" Binding="{Binding Price, StringFormat='S/ {0:N2}'}" Width="100"/>
                                 <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="70"/>
