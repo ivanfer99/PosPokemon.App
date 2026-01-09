@@ -1,11 +1,16 @@
-﻿using System;
+﻿using Dapper;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Math;
+using Microsoft.Data.Sqlite;
+using PosPokemon.App.Services;
+using System;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
-using Microsoft.Data.Sqlite;
-using PosPokemon.App.Services;
+using IOPath = System.IO.Path;
 
 namespace PosPokemon.App.Data;
 
@@ -25,7 +30,11 @@ public sealed class Db
     /// </summary>
     public void InitSchema()
     {
-        var schemaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Schema.sqlite.sql");
+        var schemaPath = System.IO.Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "Data",
+        "Schema.sqlite.sql"
+    );
 
         if (!File.Exists(schemaPath))
             throw new FileNotFoundException($"Schema file not found: {schemaPath}");
@@ -213,8 +222,9 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
         var currentVersion = GetDatabaseVersion();
         if (currentVersion >= 6) return;
 
-        using var cnn = OpenConnection();  // ✅ CAMBIO: GetConnection() → OpenConnection()
-        cnn.Open();
+        using var cnn = OpenConnection();
+        cnn.Open();  // ✅ NECESARIO: Abrir antes de BeginTransaction()
+
         using var txn = cnn.BeginTransaction();
 
         try
@@ -367,17 +377,13 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
             throw new Exception($"Error en migración V6: {ex.Message}", ex);
         }
     }
-    // ========================================
-    // MÉTODOS DE CONTROL DE VERSIÓN
-    // ========================================
-
     /// <summary>
     /// Obtiene la versión actual de la base de datos
     /// </summary>
     private int GetDatabaseVersion()
     {
-        using var cnn = OpenConnection();  // ✅ CAMBIO: GetConnection() → OpenConnection()
-        cnn.Open();
+        using var cnn = OpenConnection();
+        // ❌ ELIMINAR: cnn.Open();  // NO es necesario, OpenConnection() ya lo hace
 
         // Crear tabla de versiones si no existe
         cnn.Execute(@"
@@ -409,13 +415,14 @@ CREATE INDEX IF NOT EXISTS idx_discount_campaign_products_product ON discount_ca
     /// <summary>
     /// Establece la versión actual de la base de datos
     /// </summary>
+
     /// <summary>
     /// Establece la versión actual de la base de datos
     /// </summary>
     private void SetDatabaseVersion(int version)
     {
-        using var cnn = OpenConnection();  // ✅ CAMBIO: GetConnection() → OpenConnection()
-        cnn.Open();
+        using var cnn = OpenConnection();
+        // ❌ ELIMINAR: cnn.Open();  // NO es necesario, OpenConnection() ya lo hace
 
         cnn.Execute(@"
         INSERT OR REPLACE INTO database_version (id, version, updated_utc)
